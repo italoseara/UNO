@@ -9,7 +9,7 @@ class Game(Engine):
 
     surface: pygame.Surface
     clock: pygame.time.Clock
-
+3
     @on_event(type_=pygame.KEYDOWN)
     def on_keydown(self, event: pygame.event.Event) -> None:
         print("Key pressed", event.key)
