@@ -1,15 +1,18 @@
 import pygame
 
 
-def on_event(**kwargs):
+def on_event(type_: int):
+    """Decorator for event callbacks.
+
+    Args:
+        type_ (int): The type of the event.
+    """
+
     def inner(func: callable):
-        if "type" not in kwargs.keys():
-            raise ValueError("Event type is missing")
+        if type_ not in Engine.events.keys():
+            Engine.events[type_] = []
 
-        if kwargs["type"] not in Engine.events.keys():
-            Engine.events[kwargs["type"]] = []
-
-        Engine.events[kwargs["type"]].append(func)
+        Engine.events[type_].append(func)
         return func
     return inner
 
@@ -22,8 +25,16 @@ class Engine:
     surface: pygame.Surface
     clock: pygame.time.Clock
 
-    is_running: bool = True
+    is_running: bool
+
     events: dict[int, list[callable]] = {}
+    instances: int = 0
+
+    def __new__(cls, *args, **kwargs):
+        cls.instances += 1
+        if cls.instances > 1:
+            raise RuntimeError("Only one instance of Engine can be created")
+        return super().__new__(cls)
 
     def __init__(self, width: int = 800, height: int = 600, fps: int = 60) -> None:
         """Initializes the game engine.
@@ -40,6 +51,8 @@ class Engine:
         pygame.init()
         self.surface = pygame.display.set_mode((self.width, self.height))
         self.clock = pygame.time.Clock()
+
+        self.is_running = True
 
     def __handle_events(self) -> None:
         """Handles events."""

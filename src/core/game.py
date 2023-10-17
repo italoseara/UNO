@@ -1,5 +1,5 @@
 import pygame
-from utils.engine import Engine, on_event
+from src.engine import Engine, on_event
 
 
 class Game(Engine):
@@ -10,7 +10,7 @@ class Game(Engine):
     surface: pygame.Surface
     clock: pygame.time.Clock
 
-    @on_event(type=pygame.KEYDOWN)
+    @on_event(type_=pygame.KEYDOWN)
     def on_keydown(self, event: pygame.event.Event) -> None:
         print("Key pressed", event.key)
 

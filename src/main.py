@@ -9,7 +9,8 @@ def main():
         print("ERROR: Pygame version is too old. Please update it using `pip install pygame --upgrade`")
         exit(1)
 
-    from game import Game
+    from core.game import Game
+
     game = Game()
     game.run()
 
