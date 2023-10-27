@@ -36,7 +36,7 @@ class Engine:
             raise RuntimeError("Only one instance of Engine can be created")
         return super().__new__(cls)
 
-    def __init__(self, width: int = 800, height: int = 600, fps: int = 60) -> None:
+    def __init__(self, width: int = 800, height: int = 600, fps: int = 60, caption: str = "Window") -> None:
         """Initializes the game engine.
 
         Args:
@@ -49,6 +49,7 @@ class Engine:
         self.fps = fps
 
         pygame.init()
+        pygame.display.set_caption(caption)
         self.surface = pygame.display.set_mode((self.width, self.height))
         self.clock = pygame.time.Clock()
 

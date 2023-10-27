@@ -9,10 +9,10 @@ def main():
         print("ERROR: Pygame version is too old. Please update it using `pip install pygame --upgrade`")
         exit(1)
 
-    from core.game import Game
+    from core.client import Client
 
-    game = Game()
-    game.run()
+    client = Client()
+    client.run()
 
 
 if __name__ == "__main__":
