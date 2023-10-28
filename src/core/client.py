@@ -2,7 +2,7 @@ import pygame
 
 from core.match import Match
 from core.connection import Network
-from src.engine import Engine, on_event
+from engine import Engine, on_event
 
 
 class Client(Engine):

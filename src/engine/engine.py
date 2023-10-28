@@ -43,6 +43,7 @@ class Engine:
             width (int, optional): The width of the game window. Defaults to 800.
             height (int, optional): The height of the game window. Defaults to 600.
             fps (int, optional): The target FPS of the game. Defaults to 60.
+            caption (str, optional): The window caption. Defaults to "Window".
         """
 
         self.width, self.height = width, height
