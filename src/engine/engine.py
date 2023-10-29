@@ -50,6 +50,12 @@ class Engine:
         self.fps = fps
 
         pygame.init()
+
+        if not pygame.font.get_init(): # A fonte já e inicializada no comando acima, mas caso n seja, inicializa
+            pygame.font.init()
+
+       # self.font = pygame.font.SysFont('arial', 10)   - define o tipo e tamanho da fonte (fiquei com duvida onde colocar isso)
+
         pygame.display.set_caption(caption)
         self.surface = pygame.display.set_mode((self.width, self.height))
         self.clock = pygame.time.Clock()
