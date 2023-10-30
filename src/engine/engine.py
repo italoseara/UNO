@@ -1,5 +1,7 @@
 import pygame
 
+from assets.components import Component
+
 
 def on_event(type_: int):
     """Decorator for event callbacks.
@@ -26,6 +28,8 @@ class Engine:
     clock: pygame.time.Clock
 
     is_running: bool
+
+    components: list[Component]
 
     events: dict[int, list[callable]] = {}
     instances: int = 0
@@ -59,6 +63,7 @@ class Engine:
         self.clock = pygame.time.Clock()
 
         self.is_running = True
+        self.components = []
 
     def __handle_events(self) -> None:
         """Handles events."""
@@ -72,6 +77,20 @@ class Engine:
                 for callback in self.events[event.type]:
                     callback(self, event)
 
+    def add_component(self, component: Component) -> None:
+        """Adds a component to the screen.
+
+        Args:
+            component (Component): The component to add.
+        """
+
+        self.components.append(component)
+
+    def clear_components(self) -> None:
+        """Clears all components from the screen."""
+
+        self.components.clear()
+
     def run(self) -> None:
         """Runs the game loop."""
 
@@ -80,7 +99,12 @@ class Engine:
         while self.is_running:
             self.__handle_events()  # Handle events
             self.update(dt)  # Update the game state
+            for comp in self.components:  # Update The components
+                comp.update(dt)
+
             self.draw()  # Draw the game
+            for comp in self.components:  # Draw The components
+                comp.draw(self.surface)
 
             pygame.display.flip()  # Update the display
             dt = self.clock.tick(self.fps) / 1000.0  # Get the time since last frame

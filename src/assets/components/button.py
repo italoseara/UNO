@@ -14,7 +14,7 @@ class Button(Component):
                  border_radius: int = 0,
                  border_width: int = 0,
                  border_color: tuple[int, int, int] | str = "black",
-                 action: callable = None):
+                 on_click: callable = None):
         # Posição e tamanho
         self.x = x
         self.y = y
@@ -22,9 +22,7 @@ class Button(Component):
         self.height = height
 
         # Botão
-        self.rect = pygame.Rect(
-            (self.x + border_width, self.y + border_width),
-            (self.width - border_width * 2, self.height - border_width * 2))
+        self.rect = pygame.Rect((self.x, self.y), (self.width, self.height))
         self.background_color = background_color
         self.border_radius = border_radius
 
@@ -37,7 +35,7 @@ class Button(Component):
         self.text = pygame.font.SysFont(text_font, text_size).render(text, True, text_color)
 
         # Função a ser executada
-        self.action = action
+        self.action = on_click
 
         # Variáveis locais
         self.__is_pressing = False
@@ -52,15 +50,17 @@ class Button(Component):
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0] and not self.__is_pressing:
-            self.action()
+            self.action(self)
             self.__is_pressing = True
 
     def draw(self, surface: pygame.Surface):
         # Desenha o botão
-        pygame.draw.rect(surface, self.border_color, self.border,
-                         border_radius=self.border_radius, width=self.border_width)
         if self.background_color is not None:
             pygame.draw.rect(surface, self.background_color, self.rect, border_radius=self.border_radius)
+
+        # Desenha a borda
+        pygame.draw.rect(surface, self.border_color, self.border,
+                         border_radius=self.border_radius, width=self.border_width)
 
         # Desenha o texto
         txt_rect = self.text.get_rect()
