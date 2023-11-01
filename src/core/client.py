@@ -4,7 +4,7 @@ from core.match import Match
 from core.connection import Network
 from engine import Engine, on_event
 
-from assets.components import Button
+from assets.components import Button, Text_input
 
 
 class Client(Engine):
@@ -34,6 +34,8 @@ class Client(Engine):
                                   border_width=5,
                                   border_radius=10,
                                   on_click=lambda b: print("Play")))
+        self.add_component(Text_input(200, 200, 100, 50,
+                                      border_width= 5))
 
     def update(self, dt: float) -> None:
         self.match = self.network.send("get")
