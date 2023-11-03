@@ -98,5 +98,5 @@ class Server:
 
 
 if __name__ == "__main__":
-    server = Server("192.168.0.248", 5555)
+    server = Server("localhost", 5555)
     server.start()

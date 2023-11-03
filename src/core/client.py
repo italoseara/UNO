@@ -1,4 +1,5 @@
 import pygame
+import socket
 
 from core.match import Match
 from core.connection import Network
@@ -20,7 +21,7 @@ class Client(Engine):
 
     def __init__(self):
         super().__init__(caption="PyNO")
-        self.network = Network("192.168.0.248", 5555)
+        self.network = Network("localhost", 5555)
         self.match = None
 
     @on_event(pygame.QUIT)
