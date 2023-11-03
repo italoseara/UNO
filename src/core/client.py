@@ -51,10 +51,3 @@ class Client(Engine):
         # Desenha o fundo
         self.surface.blit(Gfx.BACKGROUND, (0, 0))
 
-        # Deixa tela escura
-        transparent = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-        transparent.fill((0, 0, 0, 50))
-        self.surface.blit(transparent, (0, 0))
-
-        # Desenha o logo
-        self.surface.blit(Gfx.LOGO, (50, 50))
