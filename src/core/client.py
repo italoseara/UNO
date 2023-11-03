@@ -2,9 +2,9 @@ import pygame
 
 from engine import Engine, on_event
 
-from core.graphics.gfx import Gfx
 from core.match import Match
 from core.connection import Network
+from core.graphics.gfx import Gfx
 
 from assets.components import Button, TextInput
 
@@ -27,7 +27,8 @@ class Client(Engine):
 
     @on_event(pygame.QUIT)
     def on_quit(self, _) -> None:
-        self.network.disconnect()
+        if self.network is not None:
+            self.network.disconnect()
 
     def init(self) -> None:
         self.clear_components()
@@ -45,6 +46,12 @@ class Client(Engine):
                                              on_click=lambda b: print(b.text)))
 
     def update(self, dt: float) -> None:
+        pass
+
+    def update_server(self) -> None:
+        if self.network is None:
+            return
+
         self.match = self.network.send("get")
 
     def draw(self) -> None:

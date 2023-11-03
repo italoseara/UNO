@@ -1,4 +1,5 @@
 import pygame
+import threading
 
 from assets.components import Component
 
@@ -29,14 +30,15 @@ class Engine:
 
     is_running: bool
 
-    components: dict[str, Component]
+    __server_thread: threading.Thread
+    __components: dict[str, Component]
 
-    instances: int = 0
+    __instances: int = 0
     events: dict[int, list[callable]] = {}
 
     def __new__(cls, *args, **kwargs):
-        cls.instances += 1
-        if cls.instances > 1:
+        cls.__instances += 1
+        if cls.__instances > 1:
             raise RuntimeError("Only one instance of Engine can be created")
         return super().__new__(cls)
 
@@ -63,7 +65,10 @@ class Engine:
         self.clock = pygame.time.Clock()
 
         self.is_running = True
-        self.components = {}
+        self.__components = {}
+
+        # Server needs to be in a separate thread so it doesn't block the main thread
+        self.__server_thread = threading.Thread(target=self.__handle_server)
 
     def __handle_events(self) -> None:
         """Handles events."""
@@ -74,12 +79,18 @@ class Engine:
                 self.is_running = False
 
             if event.type == pygame.KEYDOWN:
-                for comp in self.components.values():  # Draw The components
+                for comp in self.__components.values():  # Draw The components
                     comp.on_keydown(event)
 
             if event.type in self.events.keys():
                 for callback in self.events[event.type]:
                     callback(self, event)
+
+    def __handle_server(self) -> None:
+        """Handles the server."""
+
+        while self.is_running:
+            self.update_server()
 
     def get_component(self, key: str) -> Component:
         """Gets a component from the screen.
@@ -91,7 +102,7 @@ class Engine:
             Component: The component.
         """
 
-        return self.components[key]
+        return self.__components[key]
 
     def add_component(self, key: str, component: Component) -> None:
         """Adds a component to the screen.
@@ -101,7 +112,7 @@ class Engine:
             key (str): The id of the component.
         """
 
-        self.components[key] = component
+        self.__components[key] = component
 
     def remove_component(self, key: str) -> None:
         """Removes a component from the screen.
@@ -110,27 +121,28 @@ class Engine:
             key (str): The id of the component.
         """
 
-        del self.components[key]
+        del self.__components[key]
 
     def clear_components(self) -> None:
         """Clears all components from the screen."""
 
-        self.components.clear()
+        self.__components.clear()
 
     def run(self) -> None:
         """Runs the game loop."""
 
         dt = 0
         self.init()  # Initialize the game
+        self.__server_thread.start()  # Start the server thread
         while self.is_running:
             self.__handle_events()  # Handle events
 
             self.update(dt)  # Update the game state
-            for comp in self.components.values():  # Update The components
+            for comp in self.__components.values():  # Update The components
                 comp.update(dt)
 
             self.draw()  # Draw the game
-            for comp in self.components.values():  # Draw The components
+            for comp in self.__components.values():  # Draw The components
                 comp.draw(self.surface)
 
             pygame.display.flip()  # Update the display
@@ -142,6 +154,10 @@ class Engine:
 
     def update(self, dt: float) -> None:
         """Updates the game state."""
+        pass
+
+    def update_server(self) -> None:
+        """Updates the server state."""
         pass
 
     def draw(self) -> None:
