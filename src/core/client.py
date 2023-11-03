@@ -35,10 +35,13 @@ class Client(Engine):
                                   border_radius=10,
                                   on_click=lambda b: print("Play")))
         self.add_component(Text_input(200, 200, 100, 50,
-                                      border_width= 5))
+                                      text_size=20,
+                                      border_radius=5,
+                                      background_color=None,
+                                      border_width=5))
 
     def update(self, dt: float) -> None:
         self.match = self.network.send("get")
 
     def draw(self) -> None:
-        self.surface.fill((255, 255, 255))
+        self.surface.fill((255, 255, 0))

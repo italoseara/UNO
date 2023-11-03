@@ -73,6 +73,10 @@ class Engine:
             if event.type == pygame.QUIT:
                 self.is_running = False
 
+            if event.type == pygame.KEYDOWN:
+                for comp in self.components:  # Draw The components
+                    comp.on_keydown(event)
+
             if event.type in self.events.keys():
                 for callback in self.events[event.type]:
                     callback(self, event)

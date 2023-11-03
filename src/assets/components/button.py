@@ -22,14 +22,14 @@ class Button(Component):
         self.height = height
 
         # Botão
-        self.rect = pygame.Rect((self.x, self.y), (self.width, self.height))
+        self.rect = pygame.Rect((self.x - self.width/2, self.y - self.height/2), (self.width, self.height))
         self.background_color = background_color
-        self.border_radius = border_radius
 
         # Borda
-        self.border = pygame.Rect((self.x, self.y), (self.width, self.height))
+        self.border = pygame.Rect((self.x - self.width/2, self.y - self.height/2), (self.width, self.height))
         self.border_color = border_color
         self.border_width = border_width
+        self.border_radius = border_radius
 
         # Texto
         self.text = pygame.font.SysFont(text_font, text_size).render(text, True, text_color)
@@ -53,6 +53,9 @@ class Button(Component):
             self.action(self)
             self.__is_pressing = True
 
+    def on_keydown(self, event: pygame.event):
+        pass
+
     def draw(self, surface: pygame.Surface):
         # Desenha o botão
         if self.background_color is not None:
@@ -64,5 +67,5 @@ class Button(Component):
 
         # Desenha o texto
         txt_rect = self.text.get_rect()
-        txt_rect.center = ((self.x + self.width / 2), (self.y + self.height / 2))
+        txt_rect.center = (self.x, self.y)
         surface.blit(self.text, txt_rect)  # Desenha o texto na superfície do botão
