@@ -49,9 +49,6 @@ class Client(Engine):
         pass
 
     def update_server(self) -> None:
-        if self.network is None:
-            return
-
         self.match = self.network.send("get")
 
     def draw(self) -> None:
