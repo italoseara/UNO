@@ -2,15 +2,15 @@ import pygame
 from .component import Component
 
 
-class Text_input(Component):
+class TextInput(Component):
 
     def __init__(self, x: int, y: int,
                  width: int, height: int,
                  max_length_input: int = 10,
-                 text_size: int = 12,
-                 text_font: str = "Arial",
-                 text_color: tuple[int, int, int] | str = "black",
-                 background_color: tuple[int, int, int] | str | None = "white",
+                 font: str = "ThaleahFat",
+                 font_size: int = 12,
+                 font_color: tuple[int, int, int] | str = "white",
+                 background_color: tuple[int, int, int] | str | None = None,
                  border_radius: int = 0,
                  border_width: int = 0,
                  border_color: tuple[int, int, int] | str = "black"):
@@ -22,8 +22,8 @@ class Text_input(Component):
         self.height = height
 
         # Tamanho e cor da fonte
-        self.text_font = pygame.font.SysFont(text_font, text_size)
-        self.text_color = text_color
+        self.text_font = pygame.font.Font(f"src/assets/fonts/{font}.ttf", font_size)
+        self.text_color = font_color
         
         # Máximo de caracteres no input
         self.max_length_input = max_length_input
@@ -68,8 +68,9 @@ class Text_input(Component):
             pygame.draw.rect(surface, self.background_color, self.rect, border_radius=self.border_radius)
 
         # Desenha a surface do text_input
-        pygame.draw.rect(surface, self.border_color, self.input_rect,
-                         border_radius=self.border_radius, width=self.border_width)
+        if self.border_width > 0:
+            pygame.draw.rect(surface, self.border_color, self.input_rect,
+                             border_radius=self.border_radius, width=self.border_width)
 
         # Coloca o input nas coordenadas da surface
         input_surface = self.text_font.render(self.user_input, True, self.text_color)

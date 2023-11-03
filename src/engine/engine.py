@@ -29,10 +29,10 @@ class Engine:
 
     is_running: bool
 
-    components: list[Component]
+    components: dict[str, Component]
 
-    events: dict[int, list[callable]] = {}
     instances: int = 0
+    events: dict[int, list[callable]] = {}
 
     def __new__(cls, *args, **kwargs):
         cls.instances += 1
@@ -55,7 +55,7 @@ class Engine:
 
         pygame.init()
 
-        if not pygame.font.get_init(): # A fonte já e inicializada no comando acima, mas caso n seja, inicializa
+        if not pygame.font.get_init():  # A fonte já e inicializada no comando acima, mas caso n seja, inicializa
             pygame.font.init()
 
         pygame.display.set_caption(caption)
@@ -63,7 +63,7 @@ class Engine:
         self.clock = pygame.time.Clock()
 
         self.is_running = True
-        self.components = []
+        self.components = {}
 
     def __handle_events(self) -> None:
         """Handles events."""
@@ -74,21 +74,43 @@ class Engine:
                 self.is_running = False
 
             if event.type == pygame.KEYDOWN:
-                for comp in self.components:  # Draw The components
+                for comp in self.components.values():  # Draw The components
                     comp.on_keydown(event)
 
             if event.type in self.events.keys():
                 for callback in self.events[event.type]:
                     callback(self, event)
 
-    def add_component(self, component: Component) -> None:
+    def get_component(self, key: str) -> Component:
+        """Gets a component from the screen.
+
+        Args:
+            key (str): The id of the component.
+
+        Returns:
+            Component: The component.
+        """
+
+        return self.components[key]
+
+    def add_component(self, key: str, component: Component) -> None:
         """Adds a component to the screen.
 
         Args:
             component (Component): The component to add.
+            key (str): The id of the component.
         """
 
-        self.components.append(component)
+        self.components[key] = component
+
+    def remove_component(self, key: str) -> None:
+        """Removes a component from the screen.
+
+        Args:
+            key (str): The id of the component.
+        """
+
+        del self.components[key]
 
     def clear_components(self) -> None:
         """Clears all components from the screen."""
@@ -102,12 +124,13 @@ class Engine:
         self.init()  # Initialize the game
         while self.is_running:
             self.__handle_events()  # Handle events
+
             self.update(dt)  # Update the game state
-            for comp in self.components:  # Update The components
+            for comp in self.components.values():  # Update The components
                 comp.update(dt)
 
             self.draw()  # Draw the game
-            for comp in self.components:  # Draw The components
+            for comp in self.components.values():  # Draw The components
                 comp.draw(self.surface)
 
             pygame.display.flip()  # Update the display

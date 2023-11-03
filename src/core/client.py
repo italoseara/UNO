@@ -1,11 +1,12 @@
 import pygame
-import socket
 
-from core.match import Match
-from core.connection import Network
 from engine import Engine, on_event
 
-from assets.components import Button, Text_input
+from core.graphics.gfx import Gfx
+from core.match import Match
+from core.connection import Network
+
+from assets.components import Button, TextInput
 
 
 class Client(Engine):
@@ -20,7 +21,7 @@ class Client(Engine):
     network: Network
 
     def __init__(self):
-        super().__init__(caption="PyNO")
+        super().__init__(caption="UNO in Python")
         self.network = Network("localhost", 5555)
         self.match = None
 
@@ -30,19 +31,30 @@ class Client(Engine):
 
     def init(self) -> None:
         self.clear_components()
-        self.add_component(Button(50, 50, 100, 50, "Play",
-                                  background_color="green",
-                                  border_width=5,
-                                  border_radius=10,
-                                  on_click=lambda b: print("Play")))
-        self.add_component(Text_input(200, 200, 100, 50,
-                                      text_size=20,
-                                      border_radius=5,
-                                      background_color=None,
-                                      border_width=5))
+        self.add_component("join", Button(100, 300, 160, 50, "Join",
+                                          font_size=72,
+                                          text_align="left",
+                                          on_click=lambda b: print(b.text)))
+        self.add_component("host", Button(100, 350, 160, 50, "Host",
+                                          font_size=72,
+                                          text_align="left",
+                                          on_click=lambda b: print(b.text)))
+        self.add_component("credits", Button(100, 400, 160, 50, "Credits",
+                                             font_size=72,
+                                             text_align="left",
+                                             on_click=lambda b: print(b.text)))
 
     def update(self, dt: float) -> None:
         self.match = self.network.send("get")
 
     def draw(self) -> None:
-        self.surface.fill((255, 255, 0))
+        # Desenha o fundo
+        self.surface.blit(Gfx.BACKGROUND, (0, 0))
+
+        # Deixa tela escura
+        transparent = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+        transparent.fill((0, 0, 0, 50))
+        self.surface.blit(transparent, (0, 0))
+
+        # Desenha o logo
+        self.surface.blit(Gfx.LOGO, (50, 50))
