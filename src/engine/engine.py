@@ -67,7 +67,7 @@ class Engine:
         self.is_running = True
         self.__components = {}
 
-        # Server needs to be in a separate thread so it doesn't block the main thread
+        # Server needs to be in a separate thread, so it doesn't block the main thread
         self.__server_thread = threading.Thread(target=self.__handle_server)
 
     def __handle_events(self) -> None:
@@ -79,8 +79,11 @@ class Engine:
                 self.is_running = False
 
             if event.type == pygame.KEYDOWN:
-                for comp in self.__components.values():  # Draw The components
-                    comp.on_keydown(event)
+                try:
+                    for comp in self.__components.values():  # Draw The components
+                        comp.on_keydown(event)
+                except RuntimeError:
+                    pass
 
             if event.type in self.events.keys():
                 for callback in self.events[event.type]:
@@ -138,12 +141,18 @@ class Engine:
             self.__handle_events()  # Handle events
 
             self.update(dt)  # Update the game state
-            for comp in self.__components.values():  # Update The components
-                comp.update(dt)
+            try:
+                for comp in self.__components.values():  # Update The components
+                    comp.update(dt)
+            except RuntimeError:
+                pass
 
             self.draw()  # Draw the game
-            for comp in self.__components.values():  # Draw The components
-                comp.draw(self.surface)
+            try:
+                for comp in self.__components.values():  # Draw The components
+                    comp.draw(self.surface)
+            except RuntimeError:
+                pass
 
             pygame.display.flip()  # Update the display
             dt = self.clock.tick(self.fps) / 1000.0  # Get the time since last frame

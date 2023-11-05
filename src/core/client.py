@@ -1,12 +1,9 @@
 import pygame
 
+from assets.states import State, Menu
 from engine import Engine, on_event
 
-from core.match import Match
 from core.connection import Network
-from core.graphics.gfx import Gfx
-
-from assets.components import Button, TextInput
 
 
 class Client(Engine):
@@ -17,41 +14,45 @@ class Client(Engine):
     surface: pygame.Surface
     clock: pygame.time.Clock
 
-    match: Match | None
-    network: Network
+    state: State
+
+    network: Network | None
 
     def __init__(self):
         super().__init__(caption="UNO in Python")
-        self.network = Network("localhost", 5555)
-        self.match = None
+        self.state = Menu(self)
+        self.network = None
 
     @on_event(pygame.QUIT)
     def on_quit(self, _) -> None:
         if self.network is not None:
             self.network.disconnect()
 
-    def init(self) -> None:
+    def connect(self, ip: str, port: int) -> None:
+        if self.network is not None:
+            self.network.disconnect()
+
+        self.network = Network(ip, port)
+
+    def disconnect(self) -> None:
+        if self.network is not None:
+            self.network.disconnect()
+            self.network = None
+
+    def set_state(self, state) -> None:
         self.clear_components()
-        self.add_component("join", Button(100, 300, 160, 50, "Join",
-                                          font_size=72,
-                                          text_align="left",
-                                          on_click=lambda b: print(b.text)))
-        self.add_component("host", Button(100, 350, 160, 50, "Host",
-                                          font_size=72,
-                                          text_align="left",
-                                          on_click=lambda b: print(b.text)))
-        self.add_component("credits", Button(100, 400, 160, 50, "Credits",
-                                             font_size=72,
-                                             text_align="left",
-                                             on_click=lambda b: print(b.text)))
+        self.state = state(self)
+        self.state.init()
+
+    def init(self) -> None:
+        self.state.init()
 
     def update(self, dt: float) -> None:
-        pass
+        self.state.update(dt)
 
     def update_server(self) -> None:
-        self.match = self.network.send("get")
+        self.state.update_server(self.network)
 
     def draw(self) -> None:
-        # Desenha o fundo
-        self.surface.blit(Gfx.BACKGROUND, (0, 0))
+        self.state.draw(self.surface)
 
