@@ -1,6 +1,6 @@
 import pygame
 
-from assets.states import State, Menu
+from core.states import State, Menu
 from engine import Engine, on_event
 
 from core.connection import Network
