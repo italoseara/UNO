@@ -14,15 +14,25 @@ class Menu(State):
         self.client.add_component("join", Button(160, 300, 250, 50, "Join",
                                                  font_size=72,
                                                  text_align="left",
-                                                 on_click=lambda b: self.client.set_state(Join)))
+                                                 on_click=self.change_state))
         self.client.add_component("host", Button(160, 350, 250, 50, "Host",
                                                  font_size=72,
                                                  text_align="left",
-                                                 on_click=lambda b: print(b.text)))
+                                                 on_click=self.change_state))
         self.client.add_component("credits", Button(160, 400, 250, 50, "Credits",
                                                     font_size=72,
                                                     text_align="left",
-                                                    on_click=lambda b: print(b.text)))
+                                                    on_click=self.change_state))
+
+    def change_state(self, button: Button):
+        state = self.client.state
+        match button.text:
+            case "Join":
+                state = Join
+            case name:
+                print(name)
+
+        self.client.state = state
 
     def update(self, dt: float):
         pass

@@ -14,45 +14,50 @@ class Client(Engine):
     surface: pygame.Surface
     clock: pygame.time.Clock
 
-    state: State
+    __state: State
 
-    network: Network | None
+    __network: Network | None
 
     def __init__(self):
         super().__init__(caption="UNO in Python")
-        self.state = Menu(self)
-        self.network = None
+        self.__state = Menu(self)
+        self.__network = None
 
     @on_event(pygame.QUIT)
     def on_quit(self, _) -> None:
-        if self.network is not None:
-            self.network.disconnect()
+        if self.__network is not None:
+            self.__network.disconnect()
+
+    @property
+    def state(self) -> State:
+        return self.__state
+
+    @state.setter
+    def state(self, s) -> None:
+        self.clear_components()
+        self.__state = s(self)
+        self.__state.init()
 
     def connect(self, ip: str, port: int) -> None:
-        if self.network is not None:
-            self.network.disconnect()
+        if self.__network is not None:
+            self.__network.disconnect()
 
-        self.network = Network(ip, port)
+        self.__network = Network(ip, port)
 
     def disconnect(self) -> None:
-        if self.network is not None:
-            self.network.disconnect()
-            self.network = None
-
-    def set_state(self, state) -> None:
-        self.clear_components()
-        self.state = state(self)
-        self.state.init()
+        if self.__network is not None:
+            self.__network.disconnect()
+            self.__network = None
 
     def init(self) -> None:
-        self.state.init()
+        self.__state.init()
 
     def update(self, dt: float) -> None:
-        self.state.update(dt)
+        self.__state.update(dt)
 
     def update_server(self) -> None:
-        self.state.update_server(self.network)
+        self.__state.update_server(self.__network)
 
     def draw(self) -> None:
-        self.state.draw(self.surface)
+        self.__state.draw(self.surface)
 
