@@ -33,9 +33,9 @@ class Client(Engine):
         return self.__state
 
     @state.setter
-    def state(self, s) -> None:
+    def state(self, s: State) -> None:
         self.clear_components()
-        self.__state = s(self)
+        self.__state = s
         self.__state.init()
 
     def connect(self, ip: str, port: int) -> None:

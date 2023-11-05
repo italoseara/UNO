@@ -28,7 +28,7 @@ class Menu(State):
         state = self.client.state
         match button.text:
             case "Join":
-                state = Join
+                state = Join(self.client)
             case name:
                 print(name)
 
