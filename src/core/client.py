@@ -1,8 +1,9 @@
 import pygame
 
-from core.match import Match
+from assets.states import State, Menu
+from engine import Engine, on_event
+
 from core.connection import Network
-from src.engine import Engine, on_event
 
 
 class Client(Engine):
@@ -13,23 +14,45 @@ class Client(Engine):
     surface: pygame.Surface
     clock: pygame.time.Clock
 
-    match: Match | None
-    network: Network
+    state: State
+
+    network: Network | None
 
     def __init__(self):
-        super().__init__(caption="PyNO")
-        self.network = Network("192.168.0.248", 5555)
-        self.match = None
+        super().__init__(caption="UNO in Python")
+        self.state = Menu(self)
+        self.network = None
 
     @on_event(pygame.QUIT)
     def on_quit(self, _) -> None:
-        self.network.disconnect()
+        if self.network is not None:
+            self.network.disconnect()
+
+    def connect(self, ip: str, port: int) -> None:
+        if self.network is not None:
+            self.network.disconnect()
+
+        self.network = Network(ip, port)
+
+    def disconnect(self) -> None:
+        if self.network is not None:
+            self.network.disconnect()
+            self.network = None
+
+    def set_state(self, state) -> None:
+        self.clear_components()
+        self.state = state(self)
+        self.state.init()
 
     def init(self) -> None:
-        pass
+        self.state.init()
 
     def update(self, dt: float) -> None:
-        self.match = self.network.send("get")
+        self.state.update(dt)
+
+    def update_server(self) -> None:
+        self.state.update_server(self.network)
 
     def draw(self) -> None:
-        self.surface.fill((255, 255, 255))
+        self.state.draw(self.surface)
+
