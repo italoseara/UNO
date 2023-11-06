@@ -3,8 +3,8 @@ import socket
 import pickle
 import threading
 
-
 from core.match import Match
+
 
 class Server:
     host: str

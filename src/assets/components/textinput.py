@@ -6,13 +6,14 @@ class TextInput(Component):
 
     def __init__(self, x: int, y: int,
                  width: int, height: int,
-                 max_length_input: int = 10,
+                 max_length_input: int | str = "auto",
+                 text_align: str = "center",
                  font: str = "ThaleahFat",
-                 font_size: int = 12,
+                 font_size: int = 32,
                  font_color: tuple[int, int, int] | str = "white",
                  background_color: tuple[int, int, int] | str | None = None,
                  border_radius: int = 0,
-                 border_width: int = 0,
+                 border_width: int = 5,
                  border_color: tuple[int, int, int] | str = "black"):
 
         # Posição e tamanho da caixa de texto
@@ -21,46 +22,50 @@ class TextInput(Component):
         self.width = width
         self.height = height
 
-        # Tamanho e cor da fonte
-        self.text_font = pygame.font.Font(f"src/assets/fonts/{font}.ttf", font_size)
+        # Texto
+        self.text_align = text_align
         self.text_color = font_color
-        
-        # Máximo de caracteres no input
+        self.text_font = pygame.font.Font(f"src/assets/fonts/{font}.ttf", font_size)
         self.max_length_input = max_length_input
-        # Guarda input de texto do user
-        self.user_input = ""
-
-        # Confere se a caixa de texto está em foco
-        self.on_focus = False
 
         # Surface
-        self.rect = pygame.Rect((self.x - self.width/2, self.y - self.height/2), (self.width, self.height))
+        self.rect = pygame.Rect((self.x, self.y), (self.width, self.height))
         self.background_color = background_color
 
         # Surface da caixa de texto
-        self.input_rect = pygame.Rect((self.x - self.width/2, self.y - self.height/2), (self.width, self.height))
+        self.input_rect = pygame.Rect((self.x, self.y), (self.width, self.height))
         self.border_width = border_width
         self.border_radius = border_radius
         self.border_color = border_color
 
+        # Guarda input de texto do user
+        self.__user_input = ""
+
+        # Confere se a caixa de texto está em foco
+        self.__on_focus = False
+
     def update(self, dt: float):
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
-        # Tira o foco da caixa de texto
-        if not self.input_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
-            self.on_focus = False
+        if pygame.mouse.get_pressed()[0]:
+            # Tira o foco da caixa de texto
+            if not self.input_rect.collidepoint(mouse_x, mouse_y):
+                self.__on_focus = False
 
-        # Põe o foco na caixa de texto
-        if self.input_rect.collidepoint(mouse_x, mouse_y) and pygame.mouse.get_pressed()[0]:
-            self.on_focus = True
+            # Põe o foco na caixa de texto
+            if self.input_rect.collidepoint(mouse_x, mouse_y):
+                self.__on_focus = True
 
     def on_keydown(self, event: pygame.event):
-        if self.on_focus:
+        if self.__on_focus:
             if event.key == pygame.K_BACKSPACE:  # Unicode gera caractere invalido se apertar backspace
-                self.user_input = self.user_input[0:-1]
+                self.__user_input = self.__user_input[0:-1]
             elif event.unicode.isprintable():  # Verifica se o caractere é imprimível
-                if len(self.user_input) < self.max_length_input:
-                    self.user_input += event.unicode  # Adiciona o input à string, se ainda tiver dentro da capacidade
+                if self.max_length_input == "auto" and self.text_font.size(self.__user_input)[0] >= self.width - 30:
+                    return  # Não adiciona o input se o texto já estiver no limite da caixa de texto
+
+                if self.max_length_input == "auto" or len(self.__user_input) < self.max_length_input:
+                    self.__user_input += event.unicode  # Adiciona o input à string, se ainda tiver dentro da capacidade
 
     def draw(self, surface: pygame.Surface):
         # Desenha o background
@@ -73,17 +78,22 @@ class TextInput(Component):
                              border_radius=self.border_radius, width=self.border_width)
 
         # Coloca o input nas coordenadas da surface
-        input_surface = self.text_font.render(self.user_input, True, self.text_color)
+        input_surface = self.text_font.render(self.__user_input, True, self.text_color)
         input_width, input_height = input_surface.get_size()
 
         # Coloca o input no centro da surface
-        surface.blit(input_surface, (
-            self.input_rect.x - input_width/2 + self.input_rect.w/2,
-            self.input_rect.y - input_height/2 + self.input_rect.h/2
-        ))
+        if self.text_align == "center":
+            surface.blit(input_surface, (
+                self.input_rect.x - input_width/2 + self.input_rect.w/2,
+                self.input_rect.y - input_height/2 + self.input_rect.h/2
+            ))
+        elif self.text_align == "left":
+            surface.blit(input_surface, (
+                self.input_rect.x + 10,
+                self.input_rect.y + self.input_rect.h / 2 - input_height / 2
+            ))
 
         # Auto resize
-        self.input_rect.w = max(150, input_surface.get_width() + 10)
-        self.input_rect.x = self.x - self.input_rect.w/2
+        self.input_rect.w = max(self.width, input_surface.get_width() + 20)
         self.rect.w = self.input_rect.w
         self.rect.x = self.input_rect.x

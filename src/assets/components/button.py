@@ -4,9 +4,10 @@ from .component import Component
 
 class Button(Component):
     def __init__(self,
-                 x: int, y: int,
-                 width: int, height: int,
                  text: str,
+                 x: int, y: int,
+                 width: int | str = "auto",
+                 height: int | str = "auto",
                  text_align: str = "center",
                  font: str = "ThaleahFat",
                  font_size: int = 20,
@@ -17,22 +18,6 @@ class Button(Component):
                  border_width: int = 0,
                  border_color: tuple[int, int, int] | str = "black",
                  on_click: callable = None):
-        # Posição e tamanho
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-
-        # Botão
-        self.rect = pygame.Rect((self.x - self.width/2, self.y - self.height/2), (self.width, self.height))
-        self.background_color = background_color
-
-        # Borda
-        self.border = pygame.Rect((self.x - self.width/2, self.y - self.height/2), (self.width, self.height))
-        self.border_color = border_color
-        self.border_width = border_width
-        self.border_radius = border_radius
-
         # Texto
         self.text = text
         self.text_align = text_align
@@ -40,33 +25,49 @@ class Button(Component):
         self.font_color = font_color
         self.hover_color = hover_color
 
+        # Posição e tamanho
+        self.x = x
+        self.y = y
+        self.width = self.font.size(text)[0] + 20 if width == "auto" else width
+        self.height = self.font.size(text)[1] - 20 if height == "auto" else height
+
+        # Botão
+        self.rect = pygame.Rect((self.x, self.y), (self.width, self.height))
+        self.background_color = background_color
+
+        # Borda
+        self.border = pygame.Rect((self.x, self.y), (self.width, self.height))
+        self.border_color = border_color
+        self.border_width = border_width
+        self.border_radius = border_radius
+
+        # Animação ao passar o mouse
+        self.__current_x = x
+        self.__current_y = y
+        self.__current_color = pygame.Color(font_color)
+
         # Função a ser executada
-        self.on_click = on_click
+        self.__on_click = on_click
 
         # Variáveis locais
         self.__is_pressing = False
 
-        # Animation
-        self.current_x = x
-        self.current_y = y
-        self.current_color = pygame.Color(font_color)
-
     def set_pos(self, x: int, y: int):
         # Muda a posição do botão gradualmente
-        self.current_x += 0.1 * (x - self.current_x)
-        self.current_y += 0.1 * (y - self.current_y)
+        self.__current_x += 0.1 * (x - self.__current_x)
+        self.__current_y += 0.1 * (y - self.__current_y)
 
-        self.rect.x = self.current_x - self.width / 2
-        self.rect.y = self.current_y - self.height / 2
+        self.rect.x = self.__current_x
+        self.rect.y = self.__current_y
 
-        self.border.x = self.current_x - self.width / 2
-        self.border.y = self.current_y - self.height / 2
+        self.border.x = self.__current_x
+        self.border.y = self.__current_y
 
     def set_color(self, color: tuple[int, int, int] | str):
-        self.current_color = self.current_color.lerp(color, 0.1)
+        self.__current_color = self.__current_color.lerp(color, 0.1)
 
     def update(self, dt: float):
-        if self.on_click is None:
+        if self.__on_click is None:
             return
 
         if not pygame.mouse.get_pressed()[0]:
@@ -78,8 +79,8 @@ class Button(Component):
             self.set_color(self.hover_color)
 
             if pygame.mouse.get_pressed()[0] and not self.__is_pressing:
-                if self.on_click is not None:
-                    self.on_click(self)
+                if self.__on_click is not None:
+                    self.__on_click(self)
                 self.__is_pressing = True
         else:
             self.set_pos(self.x, self.y)
@@ -99,11 +100,18 @@ class Button(Component):
                              border_radius=self.border_radius, width=self.border_width)
 
         # Desenha o texto
-        text = self.font.render(self.text, True, self.current_color)
+        text = self.font.render(self.text, True, self.__current_color)
         txt_rect = text.get_rect()
 
         if self.text_align == "center":
-            txt_rect.center = (self.current_x, self.current_y)
+            txt_rect.center = (
+                self.__current_x + self.width / 2,
+                self.__current_y + self.height / 2
+            )
         elif self.text_align == "left":
-            txt_rect.center = (self.current_x - self.width / 2 + txt_rect.w / 2 + self.border_width, self.current_y)
+            txt_rect.midleft = (
+                self.__current_x + 10,
+                self.__current_y + self.height / 2
+            )
+
         surface.blit(text, txt_rect)  # Desenha o texto na superfície do botão

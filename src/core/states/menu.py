@@ -5,24 +5,35 @@ from core.graphics import Gfx
 from .state import State
 from .join import Join
 
-from assets.components import Button, TextInput
+from assets.components import Button, Text, TextInput
 
 
 class Menu(State):
 
     def init(self):
-        self.client.add_component("join", Button(160, 300, 250, 50, "Join",
-                                                 font_size=72,
-                                                 text_align="left",
-                                                 on_click=self.change_state))
-        self.client.add_component("host", Button(160, 350, 250, 50, "Host",
-                                                 font_size=72,
-                                                 text_align="left",
-                                                 on_click=self.change_state))
-        self.client.add_component("credits", Button(160, 400, 250, 50, "Credits",
-                                                    font_size=72,
-                                                    text_align="left",
-                                                    on_click=self.change_state))
+        self.client.add_component(
+            Button("Join", 50, 300,
+                   font_size=72,
+                   text_align="left",
+                   on_click=self.change_state))
+
+        self.client.add_component(
+            Button("Host", 50, 350,
+                   font_size=72,
+                   text_align="left",
+                   on_click=self.change_state))
+
+        self.client.add_component(
+            Button("Credits", 50, 400,
+                   font_size=72,
+                   text_align="left",
+                   on_click=self.change_state))
+
+        self.client.add_component(
+            Text("UESC (2023)", 10, 580, font_size=16))
+
+        self.client.add_component(
+            TextInput(50, 250, 200, 50))
 
     def change_state(self, button: Button):
         state = self.client.state

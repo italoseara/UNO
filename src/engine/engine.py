@@ -31,7 +31,7 @@ class Engine:
     is_running: bool
 
     __server_thread: threading.Thread
-    __components: dict[str, Component]
+    __components: list[Component]
 
     __instances: int = 0
     events: dict[int, list[callable]] = {}
@@ -65,7 +65,7 @@ class Engine:
         self.clock = pygame.time.Clock()
 
         self.is_running = True
-        self.__components = {}
+        self.__components = []
 
         # Server needs to be in a separate thread, so it doesn't block the main thread
         self.__server_thread = threading.Thread(target=self.__handle_server)
@@ -80,7 +80,7 @@ class Engine:
 
             if event.type == pygame.KEYDOWN:
                 try:
-                    for comp in self.__components.values():  # Draw The components
+                    for comp in self.__components:  # Draw The components
                         comp.on_keydown(event)
                 except RuntimeError:
                     pass
@@ -95,36 +95,14 @@ class Engine:
         while self.is_running:
             self.update_server()
 
-    def get_component(self, key: str) -> Component:
-        """Gets a component from the screen.
-
-        Args:
-            key (str): The id of the component.
-
-        Returns:
-            Component: The component.
-        """
-
-        return self.__components[key]
-
-    def add_component(self, key: str, component: Component) -> None:
+    def add_component(self, component: Component) -> None:
         """Adds a component to the screen.
 
         Args:
             component (Component): The component to add.
-            key (str): The id of the component.
         """
 
-        self.__components[key] = component
-
-    def remove_component(self, key: str) -> None:
-        """Removes a component from the screen.
-
-        Args:
-            key (str): The id of the component.
-        """
-
-        del self.__components[key]
+        self.__components.append(component)
 
     def clear_components(self) -> None:
         """Clears all components from the screen."""
@@ -142,14 +120,14 @@ class Engine:
 
             self.update(dt)  # Update the game state
             try:
-                for comp in self.__components.values():  # Update The components
+                for comp in self.__components:  # Update The components
                     comp.update(dt)
             except RuntimeError:
                 pass
 
             self.draw()  # Draw the game
             try:
-                for comp in self.__components.values():  # Draw The components
+                for comp in self.__components:  # Draw The components
                     comp.draw(self.surface)
             except RuntimeError:
                 pass
