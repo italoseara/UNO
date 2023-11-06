@@ -32,9 +32,6 @@ class Menu(State):
         self.client.add_component(
             Text("UESC (2023)", 10, 580, font_size=16))
 
-        self.client.add_component(
-            TextInput(50, 250, 200, 50))
-
     def change_state(self, button: Button):
         state = self.client.state
         match button.text:
