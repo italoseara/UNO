@@ -44,6 +44,10 @@ class TextInput(Component):
         # Confere se a caixa de texto está em foco
         self.__on_focus = False
 
+    @property
+    def input(self) -> str:
+        return self.__user_input
+
     def update(self, dt: float):
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
