@@ -7,41 +7,41 @@ from core.match import Match
 
 
 class Server:
-    host: str
-    port: int
-    running: bool
+    __host: str
+    __port: int
+    __running: bool
 
-    clients: dict[int, socket.socket]
-    server: socket.socket | None
+    __clients: dict[int, socket.socket]
+    __server: socket.socket | None
 
-    match: Match
+    __match: Match
 
     def __init__(self, host: str, port: int):
-        self.host = host
-        self.port = port
-        self.running = False
+        self.__host = host
+        self.__port = port
+        self.__running = False
 
-        self.clients = {}
-        self.server = None
+        self.__clients = {}
+        self.__server = None
 
-        self.match = Match()
+        self.__match = Match()
 
     def start(self):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind((self.host, self.port))
-        self.server.listen(4)
-        self.running = True
-        print(f"Server is running on port {self.port}")
+        self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__server.bind((self.__host, self.__port))
+        self.__server.listen(4)
+        self.__running = True
+        print(f"Server is running on port {self.__port}")
 
-        while self.running:
+        while self.__running:
             try:
-                client, address = self.server.accept()
-                if self.match.ready:
+                client, address = self.__server.accept()
+                if self.__match.ready:
                     client.close()
                     continue
 
-                if len(self.clients) == 4:
-                    self.match.ready = True
+                if len(self.__clients) == 4:
+                    self.__match.ready = True
 
                 print(f"Client connected from {address[0]}:{address[1]}")
                 self.add_client(client)
@@ -50,42 +50,42 @@ class Server:
 
     def stop(self):
         print("Stopping server...")
-        self.running = False
-        self.server.close()
+        self.__running = False
+        self.__server.close()
         sys.exit()
 
     def add_client(self, client: socket.socket):
         client_id = 0
-        while client_id in self.clients.keys():
+        while client_id in self.__clients.keys():
             client_id += 1
 
-        self.clients[client_id] = client
+        self.__clients[client_id] = client
 
         # Start client thread
         client_thread = threading.Thread(target=self.handle_client, args=(client, client_id))
         client_thread.start()
 
     def remove_client(self, client_id: int):
-        client = self.clients.pop(client_id)
+        client = self.__clients.pop(client_id)
         client.close()
 
     def handle_client(self, client: socket.socket, client_id: int):
         client.send(str.encode(str(client_id)))  # Send client id
 
-        while client_id in self.clients.keys():
+        while client_id in self.__clients.keys():
             try:
                 data = client.recv(4096).decode()
                 match data.split(" "):
                     case ["restart"]:
-                        self.match.restart()
+                        self.__match.restart()
                     case ["play", card]:
-                        self.match.play(client_id, card)
+                        self.__match.play(client_id, card)
                     case ["get"]:
                         pass
                     case _:
                         break
 
-                client.send(pickle.dumps(self.match))
+                client.send(pickle.dumps(self.__match))
             except Exception as e:
                 print(e)
                 break
@@ -93,8 +93,8 @@ class Server:
         print(f"Client {client_id} disconnected")
         self.remove_client(client_id)
 
-        if len(self.clients) == 0:
-            self.match.restart()
+        if len(self.__clients) == 0:
+            self.__match.restart()
 
 
 if __name__ == "__main__":

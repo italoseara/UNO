@@ -5,35 +5,36 @@ from typing import Any
 
 
 class Network:
-    id: int
-    host: str
-    port: int
-    running: bool
-    client: socket.socket | None
+    __id: int
+    __host: str
+    __port: int
+
+    __running: bool
+    __client: socket.socket | None
 
     def __init__(self, host: str, port: int):
-        self.host = host
-        self.port = port
-        self.client = None
-        self.id = self.connect()
+        self.__host = host
+        self.__port = port
+        self.__client = None
+        self.__id = self.connect()
 
     def connect(self) -> int:
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect((self.host, self.port))
-        self.running = True
+        self.__client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__client.connect((self.__host, self.__port))
+        self.__running = True
 
-        print(f"Connected to {self.host}:{self.port}")
-        return int(self.client.recv(2048).decode())
+        print(f"Connected to {self.__host}:{self.__port}")
+        return int(self.__client.recv(2048).decode())
 
     def disconnect(self):
         print("Disconnecting client...")
-        self.running = False
-        self.client.close()
+        self.__running = False
+        self.__client.close()
 
     def send(self, data: str) -> Any:
-        if self.running:
+        if self.__running:
             try:
-                self.client.send(str.encode(data))
-                return pickle.loads(self.client.recv(4096))
+                self.__client.send(str.encode(data))
+                return pickle.loads(self.__client.recv(4096))
             except socket.error as e:
                 print(e)

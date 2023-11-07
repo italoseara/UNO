@@ -1,18 +1,17 @@
 import pygame
 
+from core.connection import Network
 from core.states import State, Menu
 from engine import Engine, on_event
 
-from core.connection import Network
-
 
 class Client(Engine):
-    width: int
-    height: int
-    fps: int
+    _width: int
+    _height: int
+    _fps: int
 
-    surface: pygame.Surface
-    clock: pygame.time.Clock
+    _surface: pygame.Surface
+    _clock: pygame.time.Clock
 
     __state: State
 
@@ -23,11 +22,6 @@ class Client(Engine):
         self.__state = Menu(self)
         self.__network = None
 
-    @on_event(pygame.QUIT)
-    def on_quit(self, _) -> None:
-        if self.__network is not None:
-            self.__network.disconnect()
-
     @property
     def state(self) -> State:
         return self.__state
@@ -37,6 +31,11 @@ class Client(Engine):
         self.clear_components()
         self.__state = s
         self.__state.init()
+
+    @on_event(pygame.QUIT)
+    def on_quit(self, _) -> None:
+        if self.__network is not None:
+            self.__network.disconnect()
 
     def connect(self, ip: str, port: int) -> None:
         if self.__network is not None:
@@ -56,8 +55,8 @@ class Client(Engine):
         self.__state.update(dt)
 
     def update_server(self) -> None:
-        self.__state.update_server(self.__network)
+        self.__state.update_server()
 
     def draw(self) -> None:
-        self.__state.draw(self.surface)
+        self.__state.draw(self._surface)
 

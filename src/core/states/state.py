@@ -1,11 +1,9 @@
 import pygame
 
-from core.connection import Network
-
 
 class State:
     def __init__(self, client):
-        self.client = client
+        self._client = client
 
     def init(self):
         pass
@@ -13,7 +11,7 @@ class State:
     def update(self, dt: float):
         pass
 
-    def update_server(self, network: Network):
+    def update_server(self):
         pass
 
     def draw(self, surface: pygame.Surface):

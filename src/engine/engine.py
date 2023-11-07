@@ -12,29 +12,26 @@ def on_event(type_: int):
     """
 
     def inner(func: callable):
-        if type_ not in Engine.events.keys():
-            Engine.events[type_] = []
-
-        Engine.events[type_].append(func)
+        Engine.add_event(type_, func)
         return func
     return inner
 
 
 class Engine:
-    width: int
-    height: int
-    fps: int
+    _width: int
+    _height: int
+    _fps: int
 
-    surface: pygame.Surface
-    clock: pygame.time.Clock
+    _surface: pygame.Surface
+    _clock: pygame.time.Clock
 
-    is_running: bool
+    __is_running: bool
 
     __server_thread: threading.Thread
     __components: list[Component]
 
     __instances: int = 0
-    events: dict[int, list[callable]] = {}
+    __events: dict[int, list[callable]] = {}
 
     def __new__(cls, *args, **kwargs):
         cls.__instances += 1
@@ -52,8 +49,8 @@ class Engine:
             caption (str, optional): The window caption. Defaults to "Window".
         """
 
-        self.width, self.height = width, height
-        self.fps = fps
+        self._width, self._height = width, height
+        self._fps = fps
 
         pygame.init()
 
@@ -61,14 +58,28 @@ class Engine:
             pygame.font.init()
 
         pygame.display.set_caption(caption)
-        self.surface = pygame.display.set_mode((self.width, self.height))
-        self.clock = pygame.time.Clock()
+        self._surface = pygame.display.set_mode((self._width, self._height))
+        self._clock = pygame.time.Clock()
 
-        self.is_running = True
+        self.__is_running = True
         self.__components = []
 
         # Server needs to be in a separate thread, so it doesn't block the main thread
         self.__server_thread = threading.Thread(target=self.__handle_server)
+
+    @staticmethod
+    def add_event(type_: int, callback: callable) -> None:
+        """Adds an event callback.
+
+        Args:
+            type_ (int): The type of the event.
+            callback (callable): The callback.
+        """
+
+        if type_ not in Engine.__events.keys():
+            Engine.__events[type_] = []
+
+        Engine.__events[type_].append(callback)
 
     def __handle_events(self) -> None:
         """Handles events."""
@@ -76,7 +87,7 @@ class Engine:
         for event in pygame.event.get():
             # User closed the window
             if event.type == pygame.QUIT:
-                self.is_running = False
+                self.__is_running = False
 
             if event.type == pygame.KEYDOWN:
                 try:
@@ -85,14 +96,14 @@ class Engine:
                 except RuntimeError:
                     pass
 
-            if event.type in self.events.keys():
-                for callback in self.events[event.type]:
+            if event.type in self.__events.keys():
+                for callback in self.__events[event.type]:
                     callback(self, event)
 
     def __handle_server(self) -> None:
         """Handles the server."""
 
-        while self.is_running:
+        while self.__is_running:
             self.update_server()
 
     def add_component(self, component: Component) -> None:
@@ -115,7 +126,7 @@ class Engine:
         dt = 0
         self.init()  # Initialize the game
         self.__server_thread.start()  # Start the server thread
-        while self.is_running:
+        while self.__is_running:
             self.__handle_events()  # Handle events
 
             self.update(dt)  # Update the game state
@@ -128,12 +139,12 @@ class Engine:
             self.draw()  # Draw the game
             try:
                 for comp in self.__components:  # Draw The components
-                    comp.draw(self.surface)
+                    comp.draw(self._surface)
             except RuntimeError:
                 pass
 
             pygame.display.flip()  # Update the display
-            dt = self.clock.tick(self.fps) / 1000.0  # Get the time since last frame
+            dt = self._clock.tick(self._fps) / 1000.0  # Get the time since last frame
 
     def init(self) -> None:
         """Initializes the game."""

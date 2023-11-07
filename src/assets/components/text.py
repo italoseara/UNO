@@ -10,24 +10,24 @@ class Text(Component):
                  font_size: int = 12,
                  font_color: tuple[int, int, int] | str = "white"):
         # Texto
-        self.text = text
-        self.font = pygame.font.Font(f"src/assets/fonts/{font}.ttf", font_size)
-        self.font_color = font_color
+        self.__text = text
+        self.__font = pygame.font.Font(f"src/assets/fonts/{font}.ttf", font_size)
+        self.__font_color = font_color
 
         # Posição
-        self.x = x
-        self.y = y
+        self.__x = x
+        self.__y = y
 
     def update(self, dt: float):
         pass
 
     def draw(self, surface: pygame.Surface):
-        text = self.font.render(self.text, True, self.font_color)
+        text = self.__font.render(self.__text, True, self.__font_color)
         text_rect = text.get_rect()
 
         text_rect.center = (
-            self.x + text_rect.width / 2,
-            self.y + text_rect.height / 2
+            self.__x + text_rect.width / 2,
+            self.__y + text_rect.height / 2
         )
 
         surface.blit(text, text_rect)
