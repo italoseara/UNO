@@ -14,6 +14,7 @@ class Client(Engine):
     _clock: pygame.time.Clock
 
     __state: State
+    __last_state: State
 
     __network: Network | None
 
@@ -29,6 +30,7 @@ class Client(Engine):
     @state.setter
     def state(self, s: State) -> None:
         self.clear_components()
+        self.__last_state = self.__state
         self.__state = s
         self.__state.init()
 
@@ -36,6 +38,9 @@ class Client(Engine):
     def on_quit(self, _) -> None:
         if self.__network is not None:
             self.__network.disconnect()
+
+    def pop_state(self, *args, **kwargs) -> None:
+        self.state = self.__last_state
 
     def connect(self, ip: str, port: int) -> None:
         if self.__network is not None:

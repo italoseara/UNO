@@ -4,7 +4,6 @@ from .state import State
 
 
 class Join(State):
-
     def init(self):
         try:
             self._client.connect("localhost", 5555)

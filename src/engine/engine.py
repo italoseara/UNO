@@ -67,6 +67,14 @@ class Engine:
         # Server needs to be in a separate thread, so it doesn't block the main thread
         self.__server_thread = threading.Thread(target=self.__handle_server)
 
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def height(self):
+        return self._height
+
     @staticmethod
     def add_event(type_: int, callback: callable) -> None:
         """Adds an event callback.
