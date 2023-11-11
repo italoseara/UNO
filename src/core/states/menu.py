@@ -32,6 +32,9 @@ class Menu(State):
             case "Join":
                 from .join import Join
                 state = Join(self._client)
+            case "Host":
+                from .host import Host
+                state = Host(self._client)
             case "Credits":
                 from .credits import Credits
                 state = Credits(self._client)
