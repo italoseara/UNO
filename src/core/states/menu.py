@@ -48,4 +48,4 @@ class Menu(State):
 
     def draw(self, surface: pygame.Surface):
         # Desenha o fundo
-        surface.blit(Gfx.BACKGROUND, (0, 0))
+        surface.blit(Gfx.MENU_BACKGROUND, (0, 0))

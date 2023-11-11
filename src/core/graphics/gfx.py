@@ -2,4 +2,5 @@ import pygame
 
 
 class Gfx:
-    BACKGROUND = pygame.image.load("src/assets/images/background.png")
+    MENU_BACKGROUND = pygame.image.load("src/assets/images/background/menu.png")
+    CREDITS_BACKGROUND = pygame.image.load("src/assets/images/background/credits.png")

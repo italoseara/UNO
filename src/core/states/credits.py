@@ -1,6 +1,7 @@
 import pygame
 
 from assets.components import Text, Button
+from core.graphics import Gfx
 from .state import State
 
 
@@ -28,7 +29,7 @@ class Credits(State):
             Text("Universidade Estadual de Santa Cruz (UESC)", cx, 450, font_size=30, align="center"))
 
         self._client.add_component(
-            Button("Back", 10, 570, height=30, font_size=32, on_click=self._client.pop_state))
+            Button("Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
     def update(self, dt: float):
         pass
@@ -37,4 +38,4 @@ class Credits(State):
         pass
 
     def draw(self, surface: pygame.Surface):
-        surface.fill((200, 20, 28))
+        surface.blit(Gfx.CREDITS_BACKGROUND, (0, 0))
