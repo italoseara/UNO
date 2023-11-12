@@ -73,11 +73,9 @@ class TextInput(Component):
                     return  # Não adiciona o input se o texto já estiver no limite da caixa de texto
 
                 if self.__max_length_input == "auto" or len(self.__user_input) < self.__max_length_input:
-                    if self.__catch:
-                        if event.unicode.isnumeric():
-                             self.__user_input += event.unicode  # Adiciona o input à string, se for numerico apenas
-                    else
-                        self.__user_input += event.unicode  # Adiciona o input à string, seja numero ou letra
+                    if self.__catch and not event.unicode.isnumeric():
+                        return
+                    self.__user_input += event.unicode  # Adiciona o input à string, seja numero ou letra
 
     def draw(self, surface: pygame.Surface):
         # Desenha o background
