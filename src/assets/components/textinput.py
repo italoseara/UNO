@@ -15,7 +15,7 @@ class TextInput(Component):
                  border_radius: int = 0,
                  border_width: int = 5,
                  border_color: tuple[int, int, int] | str = "black",
-                 catch : bool = False):
+                 numeric : bool = False):
 
         # Posição e tamanho da caixa de texto
         self.__x = x
@@ -46,10 +46,12 @@ class TextInput(Component):
         self.__on_focus = False
 
         # Limita o tipo de input
-        self.__catch = catch
+        self.__numeric = numeric
 
     @property
-    def input(self) -> str:
+    def input(self) -> str | int:
+        if self.__numeric:
+            return int(self.__user_input)
         return self.__user_input
 
     def update(self, dt: float):
@@ -73,7 +75,7 @@ class TextInput(Component):
                     return  # Não adiciona o input se o texto já estiver no limite da caixa de texto
 
                 if self.__max_length_input == "auto" or len(self.__user_input) < self.__max_length_input:
-                    if self.__catch and not event.unicode.isnumeric():
+                    if self.__numeric and not event.unicode.isnumeric():
                         return
                     self.__user_input += event.unicode  # Adiciona o input à string, seja numero ou letra
 

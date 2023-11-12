@@ -128,6 +128,7 @@ class Engine:
 
         self.__components.clear()
 
+
     def run(self) -> None:
         """Runs the game loop."""
 

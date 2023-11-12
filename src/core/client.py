@@ -1,6 +1,8 @@
+import threading
+
 import pygame
 
-from core.connection import Network
+from core.connection import Network, Server
 from core.states import State, Menu
 from engine import Engine, on_event
 
@@ -17,11 +19,15 @@ class Client(Engine):
     __last_state: State
 
     __network: Network | None
+    __server: Server | None
+    __server_thread: threading.Thread | None
 
     def __init__(self):
         super().__init__(caption="UNO in Python")
         self.__state = Menu(self)
         self.__network = None
+        self.__server = None
+        self.__server_thread = None
 
     @property
     def state(self) -> State:
@@ -36,8 +42,8 @@ class Client(Engine):
 
     @on_event(pygame.QUIT)
     def on_quit(self, _) -> None:
-        if self.__network is not None:
-            self.__network.disconnect()
+        self.disconnect()
+        self.close_server()
 
     def pop_state(self, *args, **kwargs) -> None:
         self.state = self.__last_state
@@ -48,10 +54,26 @@ class Client(Engine):
 
         self.__network = Network(ip, port)
 
+    def host_server(self, port: int) -> None:
+        if self.__server is not None:
+            self.__server.stop()
+
+        self.__server = Server("localhost", port)
+        self.__server_thread = threading.Thread(target=self.__server.start)
+        self.__server_thread.start()
+
     def disconnect(self) -> None:
         if self.__network is not None:
             self.__network.disconnect()
             self.__network = None
+
+    def close_server(self) -> None:
+        if self.__server is not None:
+            self.__server.stop()
+            self.__server = None
+        if self.__server_thread is not None:
+            self.__server_thread.join()
+            self.__server_thread = None
 
     def init(self) -> None:
         self.__state.init()
