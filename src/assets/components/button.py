@@ -21,7 +21,7 @@ class Button(Component):
         # Texto
         self.__text = text
         self.__text_align = text_align
-        self.__font = pygame.font.Font(f"assets/fonts/{font}.ttf", font_size)
+        self.__font = pygame.font.Font(f"./src/assets/fonts/{font}.ttf", font_size)
         self.__font_color = font_color
         self.__hover_color = hover_color
 

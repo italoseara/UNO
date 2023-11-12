@@ -19,16 +19,17 @@ class Host(State):
         self._client.add_component(
             TextInput(cy, 250, 200, 50, font_size=30, max_length_input=5,
                       text_align="center", font_color="black", background_color="white", border_radius=15,
-                      border_width=5, border_color="gray", catch=True)
-        )
+                      border_width=5, border_color="gray", catch=True))
 
         self._client.add_component(
             Text("Insert the port", cx, 200, font_size=50, align="center"))
 
         self._client.add_component(
-            Button("Click here to host server", 3*cx//6,cy, height=50, font_size=35,
-                   on_click=self._client.pop_state) # TODO: Implementar ação do botão
-        )
+            Button("Click here to host server", cx - 210, cy, height=50, font_size=35,
+                   on_click=self.__host_server))  # TODO: Implementar ação do botão
+
+    def __host_server(self, button: Button):
+        self._client.pop_state()
 
     def update(self, dt: float):
         pass

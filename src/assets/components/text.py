@@ -12,7 +12,7 @@ class Text(Component):
                  align: str = "topleft"):
         # Texto
         self.__text = text
-        self.__font = pygame.font.Font(f"assets/fonts/{font}.ttf", font_size)
+        self.__font = pygame.font.Font(f"./src/assets/fonts/{font}.ttf", font_size)
         self.__font_color = font_color
 
         # Posição

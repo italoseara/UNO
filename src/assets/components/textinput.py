@@ -26,7 +26,7 @@ class TextInput(Component):
         # Texto
         self.__text_align = text_align
         self.__text_color = font_color
-        self.__text_font = pygame.font.Font(f"assets/fonts/{font}.ttf", font_size)
+        self.__text_font = pygame.font.Font(f"./src/assets/fonts/{font}.ttf", font_size)
         self.__max_length_input = max_length_input
 
         # Surface
