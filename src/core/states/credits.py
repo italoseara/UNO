@@ -45,6 +45,6 @@ class Credits(State):
         pass
 
     def draw(self, surface: pygame.Surface):
-        surface.blit(Gfx.CREDITS_BACKGROUND, (0, 0))
+        surface.blit(Gfx.BACKGROUND, (0, 0))
         surface.blit(self.__random_cards[0], (40, 130))
         surface.blit(self.__random_cards[1], (610, 210))

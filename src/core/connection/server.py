@@ -29,6 +29,7 @@ class Server:
     def start(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server.bind((self.__host, self.__port))
+        self.__server.settimeout(1)  # Evita que o servidor fique preso no accept
         self.__server.listen(4)
         self.__running = True
         print(f"Server is running on port {self.__port}")
@@ -47,12 +48,13 @@ class Server:
                 self.add_client(client)
             except KeyboardInterrupt:
                 self.stop()
+            except OSError:  # Timeout
+                pass
 
     def stop(self):
         print("Stopping server...")
         self.__running = False
         self.__server.close()
-        sys.exit()
 
     def add_client(self, client: socket.socket):
         client_id = 0
@@ -70,7 +72,7 @@ class Server:
         client.close()
 
     def handle_client(self, client: socket.socket, client_id: int):
-        client.send(str.encode(str(client_id)))  # Send client id
+        client.send(str.encode(str(client_id)))  # Envia o id do cliente quando ele se conecta pela primeira vez
 
         while client_id in self.__clients.keys():
             try:

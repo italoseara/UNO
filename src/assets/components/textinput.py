@@ -14,7 +14,8 @@ class TextInput(Component):
                  background_color: tuple[int, int, int] | str | None = None,
                  border_radius: int = 0,
                  border_width: int = 5,
-                 border_color: tuple[int, int, int] | str = "black"):
+                 border_color: tuple[int, int, int] | str = "black",
+                 numeric : bool = False):
 
         # Posição e tamanho da caixa de texto
         self.__x = x
@@ -25,7 +26,7 @@ class TextInput(Component):
         # Texto
         self.__text_align = text_align
         self.__text_color = font_color
-        self.__text_font = pygame.font.Font(f"src/assets/fonts/{font}.ttf", font_size)
+        self.__text_font = pygame.font.Font(f"./src/assets/fonts/{font}.ttf", font_size)
         self.__max_length_input = max_length_input
 
         # Surface
@@ -44,8 +45,13 @@ class TextInput(Component):
         # Confere se a caixa de texto está em foco
         self.__on_focus = False
 
+        # Limita o tipo de input
+        self.__numeric = numeric
+
     @property
-    def input(self) -> str:
+    def text(self) -> str | int:
+        if self.__numeric:
+            return int(self.__user_input)
         return self.__user_input
 
     def update(self, dt: float):
@@ -69,7 +75,9 @@ class TextInput(Component):
                     return  # Não adiciona o input se o texto já estiver no limite da caixa de texto
 
                 if self.__max_length_input == "auto" or len(self.__user_input) < self.__max_length_input:
-                    self.__user_input += event.unicode  # Adiciona o input à string, se ainda tiver dentro da capacidade
+                    if self.__numeric and not event.unicode.isnumeric():
+                        return
+                    self.__user_input += event.unicode  # Adiciona o input à string, seja numero ou letra
 
     def draw(self, surface: pygame.Surface):
         # Desenha o background

@@ -6,7 +6,7 @@ import os
 class Gfx:
     LOGO = pygame.image.load("src/assets/images/logo.png")
     MENU_BACKGROUND = pygame.image.load("src/assets/images/background/menu.png")
-    CREDITS_BACKGROUND = pygame.image.load("src/assets/images/background/credits.png")
+    BACKGROUND = pygame.image.load("src/assets/images/background/credits.png")
 
     @staticmethod
     def random_card() -> pygame.Surface:
