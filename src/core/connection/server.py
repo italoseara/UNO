@@ -32,7 +32,7 @@ class Server:
         self.__server.settimeout(1)  # Evita que o servidor fique preso no accept
         self.__server.listen(4)
         self.__running = True
-        print(f"Server is running on port {self.__port}")
+        print(f"[Server] Server is running on port {self.__port}")
 
         while self.__running:
             try:
@@ -44,7 +44,7 @@ class Server:
                 if len(self.__clients) == 4:
                     self.__match.ready = True
 
-                print(f"Client connected from {address[0]}:{address[1]}")
+                print(f"[Server] Client connected from {address[0]}:{address[1]}")
                 self.add_client(client)
             except KeyboardInterrupt:
                 self.stop()
@@ -52,7 +52,7 @@ class Server:
                 pass
 
     def stop(self):
-        print("Stopping server...")
+        print("[Server] Stopping server...")
         self.__running = False
         self.__server.close()
 
@@ -92,7 +92,7 @@ class Server:
                 print(e)
                 break
 
-        print(f"Client {client_id} disconnected")
+        print(f"[Server] Client {client_id} disconnected")
         self.remove_client(client_id)
 
         if len(self.__clients) == 0:

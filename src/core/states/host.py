@@ -9,23 +9,33 @@ from .state import State
 
 
 class Host(State):
+    def __init__(self, client):
+        super().__init__(client)
+        self.__cards = [
+            pygame.transform.rotate(Gfx.WORLD_CARD, 15),
+            pygame.transform.rotate(Gfx.BACK_CARD, -15)
+        ]
+
     def init(self):
         cx = self._client.width // 2
         cy = self._client.height // 2
 
         self._client.add_component(
-            Text("Host", cx, 60, font_size=72, align="center"))
+            Text("Host a LAN match", cx, 60, font_size=72, align="center"))
 
         self._client.add_component(
-            Text("Nickname", cx, 200, font_size=45, align="center"))
+            Text("Nickname:", cx, 235, font_size=35, align="center"))
         self._client.add_component(
-            TextInput(cx - 100, 250, 200, 50, font_size=30, max_length_input=10,
-                      text_align="center", font_color="black", background_color="white", border_radius=15,
-                      border_width=5, border_color="gray"),
+            TextInput(cx, 280, 300, 50, font_size=30,
+                      max_length_input=16,
+                      text_align="center", font_color="white", background_color="#a30f17",
+                      border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
             id="nickname")
 
         self._client.add_component(
-            Button("Host Server", cx - 90, 350, height=50, font_size=35, on_click=self.__host_server))
+            Button("> Start Match <", cx, 370, width=300, height=50,
+                   font_size=40, align="center", animation="up",
+                   on_click=self.__host_server))
 
         self._client.add_component(
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
@@ -49,3 +59,5 @@ class Host(State):
 
     def draw(self, surface: pygame.Surface):
         surface.blit(Gfx.BACKGROUND, (0, 0))
+        surface.blit(self.__cards[0], (40, 200))
+        surface.blit(self.__cards[1], (610, 250))

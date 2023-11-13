@@ -25,6 +25,8 @@ class Client(Engine):
     def __init__(self):
         super().__init__(caption="UNO in Python")
         self.__state = Menu(self)
+        self.__last_state = self.__state
+
         self.__network = None
         self.__server = None
         self.__server_thread = None
