@@ -24,16 +24,25 @@ class Host(State):
             Text("Host a LAN match", cx, 60, font_size=72, align="center"))
 
         self._client.add_component(
-            Text("Nickname:", cx, 235, font_size=35, align="center"))
+            Text("Nickname:", cx, 215, font_size=35, align="center"))
         self._client.add_component(
-            TextInput(cx, 280, 300, 50, font_size=30,
+            TextInput(cx, 260, 300, 50, font_size=30,
                       max_length_input=16,
                       text_align="center", font_color="white", background_color="#a30f17",
                       border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
             id="nickname")
 
         self._client.add_component(
-            Button("> Start Match <", cx, 370, width=300, height=50,
+            Text("Port:", cx, 310, font_size=35, align="center"))
+        self._client.add_component(
+            TextInput(cx, 355, 300, 50, font_size=30,
+                      max_length_input=5, default="25565", numeric=True,
+                      text_align="center", font_color="white", background_color="#a30f17",
+                      border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
+            id="port")
+
+        self._client.add_component(
+            Button("> Start Match <", cx, 445, width=300, height=50,
                    font_size=40, align="center", animation="up",
                    on_click=self.__host_server))
 
@@ -41,11 +50,11 @@ class Host(State):
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
     def __host_server(self, button: Button):
-        port = randint(10000, 65535)
         nickname = self._client.get_component("nickname").text
+        port = self._client.get_component("port").text
 
         self._client.host_server(port)
-        pygame.time.wait(500)
+        pygame.time.wait(500)  # Espera o servidor iniciar
         self._client.connect("localhost", port)
 
         # self._client.send({"type": "join", "nickname": nickname})

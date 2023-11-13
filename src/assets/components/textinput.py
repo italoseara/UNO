@@ -6,6 +6,7 @@ class TextInput(Component):
 
     def __init__(self, x: int, y: int,
                  width: int, height: int,
+                 default: str = "",
                  max_length_input: int | str = "auto",
                  text_align: str = "center",
                  align: str = "topleft",
@@ -47,7 +48,7 @@ class TextInput(Component):
         self.__border_color = border_color
 
         # Guarda input de texto do user
-        self.__user_input = ""
+        self.__user_input = default
 
         # Confere se a caixa de texto está em foco
         self.__on_focus = False
