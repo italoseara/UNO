@@ -72,7 +72,7 @@ class Server:
         client.close()
 
     def handle_client(self, client: socket.socket, client_id: int):
-        client.send(str.encode(str(client_id)))  # Send client id
+        client.send(str.encode(str(client_id)))  # Envia o id do cliente quando ele se conecta pela primeira vez
 
         while client_id in self.__clients.keys():
             try:

@@ -17,8 +17,7 @@ class Host(State):
             Text("Host", cx, 60, font_size=72, align="center"))
 
         self._client.add_component(
-            Button("Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
-
+            Text("Nickname", cx, 200, font_size=45, align="center"))
         self._client.add_component(
             TextInput(cx - 100, 250, 200, 50, font_size=30, max_length_input=10,
                       text_align="center", font_color="black", background_color="white", border_radius=15,
@@ -26,11 +25,10 @@ class Host(State):
             id="nickname")
 
         self._client.add_component(
-            Text("Nickname", cx, 200, font_size=45, align="center"))
+            Button("Host Server", cx - 90, 350, height=50, font_size=35, on_click=self.__host_server))
 
         self._client.add_component(
-            Button("Host", cx - 90, 350, height=50, font_size=35,
-                   on_click=self.__host_server))
+            Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
     def __host_server(self, button: Button):
         port = randint(10000, 65535)

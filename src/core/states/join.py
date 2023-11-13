@@ -12,20 +12,7 @@ class Join(State):
         cy = self._client.height // 2
 
         self._client.add_component(
-            Button("Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
-
-        self._client.add_component(
             Text("Port", cx + 150, 200, font_size=50, align="center"))
-
-        self._client.add_component(
-            Text("Nickname", cx - 130, 200, font_size=50, align="center"))
-
-        self._client.add_component(
-            TextInput(cx - 230, 230, 200, 50, font_size=30, max_length_input=5,
-                      text_align="center", font_color="black", background_color="white",
-                      border_radius=15, border_width=5, border_color="gray", numeric=False),
-            id="nickname")
-
         self._client.add_component(
             TextInput(cx + 50, 230, 200, 50, font_size=30, max_length_input=5,
                       text_align="center", font_color="black", background_color="white",
@@ -33,7 +20,18 @@ class Join(State):
             id="port")
 
         self._client.add_component(
+            Text("Nickname", cx - 130, 200, font_size=50, align="center"))
+        self._client.add_component(
+            TextInput(cx - 230, 230, 200, 50, font_size=30, max_length_input=5,
+                      text_align="center", font_color="black", background_color="white",
+                      border_radius=15, border_width=5, border_color="gray", numeric=False),
+            id="nickname")
+
+        self._client.add_component(
             Button("Join server", cy, 350, height=50, font_size=35, on_click=self.__join_server))
+
+        self._client.add_component(
+            Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
     def __join_server(self, button: Button):
         port = self._client.get_component("port").text
