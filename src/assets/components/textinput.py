@@ -6,16 +6,18 @@ class TextInput(Component):
 
     def __init__(self, x: int, y: int,
                  width: int, height: int,
+                 default: str = "",
                  max_length_input: int | str = "auto",
                  text_align: str = "center",
+                 align: str = "topleft",
                  font: str = "ThaleahFat",
                  font_size: int = 32,
                  font_color: tuple[int, int, int] | str = "white",
                  background_color: tuple[int, int, int] | str | None = None,
                  border_radius: int = 0,
-                 border_width: int = 5,
+                 border_width: int = 0,
                  border_color: tuple[int, int, int] | str = "black",
-                 numeric : bool = False):
+                 numeric: bool = False):
 
         # Posição e tamanho da caixa de texto
         self.__x = x
@@ -31,16 +33,22 @@ class TextInput(Component):
 
         # Surface
         self.__rect = pygame.Rect((self.__x, self.__y), (self.__width, self.__height))
+        if align == "center":
+            self.__rect.center = (self.__x, self.__y)
+
         self.__background_color = background_color
 
         # Surface da caixa de texto
         self.__input_rect = pygame.Rect((self.__x, self.__y), (self.__width, self.__height))
+        if align == "center":
+            self.__input_rect.center = (self.__x, self.__y)
+
         self.__border_width = border_width
         self.__border_radius = border_radius
         self.__border_color = border_color
 
         # Guarda input de texto do user
-        self.__user_input = ""
+        self.__user_input = default
 
         # Confere se a caixa de texto está em foco
         self.__on_focus = False
