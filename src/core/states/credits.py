@@ -38,4 +38,4 @@ class Credits(State):
         pass
 
     def draw(self, surface: pygame.Surface):
-        surface.blit(Gfx.CREDITS_BACKGROUND, (0, 0))
+        surface.blit(Gfx.BACKGROUND, (0, 0))

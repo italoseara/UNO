@@ -49,7 +49,7 @@ class TextInput(Component):
         self.__numeric = numeric
 
     @property
-    def input(self) -> str | int:
+    def text(self) -> str | int:
         if self.__numeric:
             return int(self.__user_input)
         return self.__user_input

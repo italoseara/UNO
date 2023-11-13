@@ -11,7 +11,7 @@ class Party(State):
         cy = self._client.height // 2
 
         self._client.add_component(
-            Text("Party", cx, cy,font_color="black", font_size=72, align="center"))
+            Text("Party", cx, cy, font_color="black", font_size=72, align="center"))
 
     def update(self, dt: float):
         pass
@@ -20,4 +20,4 @@ class Party(State):
         pass
 
     def draw(self, surface: pygame.Surface):
-        surface.blit(Gfx.CREDITS_BACKGROUND, (0, 0))
+        surface.blit(Gfx.BACKGROUND, (0, 0))

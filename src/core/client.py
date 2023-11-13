@@ -34,10 +34,10 @@ class Client(Engine):
         return self.__state
 
     @state.setter
-    def state(self, s: State) -> None:
+    def state(self, state: State) -> None:
         self.clear_components()
         self.__last_state = self.__state
-        self.__state = s
+        self.__state = state
         self.__state.init()
 
     @on_event(pygame.QUIT)
@@ -71,6 +71,7 @@ class Client(Engine):
         if self.__server is not None:
             self.__server.stop()
             self.__server = None
+
         if self.__server_thread is not None:
             self.__server_thread.join()
             self.__server_thread = None
