@@ -141,6 +141,15 @@ class Engine:
 
         self.__components.clear()
 
+    def pop_component(self, id: str | None) -> None:
+        """Clears a component from the screen.
+
+        Args:
+            id (str): The id of the component.
+        """
+
+        self.__components.pop(id, None)
+
     def run(self) -> None:
         """Runs the game loop."""
 

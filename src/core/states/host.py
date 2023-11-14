@@ -53,15 +53,26 @@ class Host(State):
         nickname = self._client.get_component("nickname").text
         port = self._client.get_component("port").text
 
-        self._client.host_server(port)
-        pygame.time.wait(500)  # Espera o servidor iniciar
-        self._client.connect("localhost", port)
+        if self.__check_nickname(nickname):
+            try:
+                self._client.host_server(port)
+                pygame.time.wait(500)  # Espera o servidor iniciar
+                self._client.connect("localhost", port)
+            except ConnectionRefusedError:
+                self._client.add_component(Text("Port already in use", self._client.width // 2, 550,font_color= "white", font_size=30,align="center"))
+                return
+            except OSError: # TODO: Fix this (PermissionError must have be included in this exception)
+                self._client.add_component(Text("Invalid port or already in use", self._client.width // 2, 550, font_color= "white",font_size=30,align="center"))
+                return
+            self._client.state = Party(self._client)
 
-        # self._client.send({"type": "join", "nickname": nickname})
-        self._client.state = Party(self._client)
-
-    def update(self, dt: float):
-        pass
+    def __check_nickname(self, nickname: str) -> bool:
+        if len(nickname) < 4:
+            self._client.add_component(Text("Nickname too short", self._client.width // 2, 500, font_size=30,align="center"), id="error")
+            return False
+        else:
+            self._client.pop_component("error")
+            return True
 
     def update_server(self):
         pass
@@ -70,3 +81,4 @@ class Host(State):
         surface.blit(Gfx.BACKGROUND, (0, 0))
         surface.blit(self.__cards[0], (40, 200))
         surface.blit(self.__cards[1], (610, 250))
+

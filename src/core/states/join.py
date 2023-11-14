@@ -1,4 +1,3 @@
-from random import randint
 
 import pygame
 
@@ -52,18 +51,32 @@ class Join(State):
         self._client.add_component(
             Button("> Join Match <", cx, 475, width=300, height=50,
                    font_size=40, align="center", animation="up",
-                   on_click=self.__host_server))
+                   on_click=self.__join_server))
 
         self._client.add_component(
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
-    def __host_server(self, button: Button):
-        ip = self._client.get_component("ip").text
-        port = int(self._client.get_component("port").text)
+    def __join_server(self, button: Button):
         nickname = self._client.get_component("nickname").text
+        if self.__check_nickname(nickname):
+            ip = self._client.get_component("ip").text
+            port = int(self._client.get_component("port").text)
+            try:
+                self._client.connect(ip, port)
+            except ConnectionRefusedError: # TODO: Fix this (PermissionError must have be included in this exception)
+                self._client.add_component(
+                    Text("Server not found", self._client.width // 2, 550, font_size=30, align="center"), id="error")
+                return
+            self._client.state = Party(self._client)
 
-        self._client.connect(ip, port)
-        self._client.state = Party(self._client)
+    def __check_nickname(self, nickname: str) -> bool:
+        if len(nickname) < 4:
+            self._client.add_component(
+                Text("Nickname too short", self._client.width // 2, 500, font_size=30, align="center"), id="error")
+            return False
+        else:
+            self._client.pop_component("error")
+            return True
 
     def update(self, dt: float):
         pass
