@@ -50,29 +50,25 @@ class Host(State):
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
     def __host_server(self, button: Button):
-        nickname = self._client.get_component("nickname").text
+        nickname = self._client.get_component("nickname").text.strip()
         port = self._client.get_component("port").text
 
-        if self.__check_nickname(nickname):
-            try:
-                self._client.host_server(port)
-                pygame.time.wait(500)  # Espera o servidor iniciar
-                self._client.connect("localhost", port)
-            except ConnectionRefusedError:
-                self._client.add_component(Text("Port already in use", self._client.width // 2, 550,font_color= "white", font_size=30,align="center"))
-                return
-            except OSError: # TODO: Fix this (PermissionError must have be included in this exception)
-                self._client.add_component(Text("Invalid port or already in use", self._client.width // 2, 550, font_color= "white",font_size=30,align="center"))
-                return
-            self._client.state = Party(self._client)
+        if not self.__check_nickname(nickname):
+            print("nickname is invalid")
+            return
+
+        if not self._client.check_port("localhost", port):
+            print("port is already in use")
+            return
+
+        self._client.host_server(port)
+        pygame.time.wait(500)  # Espera o servidor iniciar
+        self._client.connect("localhost", port)
+
+        self._client.state = Party(self._client)
 
     def __check_nickname(self, nickname: str) -> bool:
-        if len(nickname) < 4:
-            self._client.add_component(Text("Nickname too short", self._client.width // 2, 500, font_size=30,align="center"), id="error")
-            return False
-        else:
-            self._client.pop_component("error")
-            return True
+        return 3 < len(nickname) <= 16
 
     def update_server(self):
         pass

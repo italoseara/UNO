@@ -18,7 +18,10 @@ class Party(State):
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self.__exit_party))
 
     def __exit_party(self, button: Button):
+        self._client.disconnect()
+        self._client.close_server()
         self._client.state = Menu(self._client)
+
 
     def update(self, dt: float):
         pass

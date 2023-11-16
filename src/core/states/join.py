@@ -57,26 +57,23 @@ class Join(State):
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
     def __join_server(self, button: Button):
-        nickname = self._client.get_component("nickname").text
-        if self.__check_nickname(nickname):
-            ip = self._client.get_component("ip").text
-            port = int(self._client.get_component("port").text)
-            try:
-                self._client.connect(ip, port)
-            except ConnectionRefusedError: # TODO: Fix this (PermissionError must have be included in this exception)
-                self._client.add_component(
-                    Text("Server not found", self._client.width // 2, 550, font_size=30, align="center"), id="error")
-                return
-            self._client.state = Party(self._client)
+        nickname = self._client.get_component("nickname").text.strip()
+        port = self._client.get_component("port").text
+        ip = self._client.get_component("ip").text
+
+        if not self.__check_nickname(nickname):
+            print("nickname is invalid")
+            return
+
+        if not self._client.check_port(ip, port):
+            print("server not found")
+            return
+
+        self._client.connect("localhost", port)
+        self._client.state = Party(self._client)
 
     def __check_nickname(self, nickname: str) -> bool:
-        if len(nickname) < 4:
-            self._client.add_component(
-                Text("Nickname too short", self._client.width // 2, 500, font_size=30, align="center"), id="error")
-            return False
-        else:
-            self._client.pop_component("error")
-            return True
+        return 3 < len(nickname) <= 16
 
     def update(self, dt: float):
         pass

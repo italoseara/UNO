@@ -5,6 +5,7 @@ import pygame
 from core.connection import Network, Server
 from core.states import State, Menu
 from engine import Engine, on_event
+import socket
 
 
 class Client(Engine):
@@ -63,6 +64,14 @@ class Client(Engine):
         self.__server = Server("localhost", port)
         self.__server_thread = threading.Thread(target=self.__server.start)
         self.__server_thread.start()
+
+    def check_port(self, ip: str, port: int) -> bool:
+        if port < 1 or port > 65535:
+            return False
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex((ip, port))
+        sock.close()
+        return result != 0
 
     def disconnect(self) -> None:
         if self.__network is not None:

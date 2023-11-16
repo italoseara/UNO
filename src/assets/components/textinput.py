@@ -59,6 +59,8 @@ class TextInput(Component):
     @property
     def text(self) -> str | int:
         if self.__numeric:
+            if self.__user_input == "":
+                return 0
             return int(self.__user_input)
         return self.__user_input
 
