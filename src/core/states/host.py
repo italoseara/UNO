@@ -1,5 +1,3 @@
-from random import randint
-
 import pygame
 
 from assets.components import Text, Button, TextInput, TempText

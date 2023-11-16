@@ -1,6 +1,6 @@
 import pygame
 
-from assets.components import Text, Button, TextInput
+from assets.components import Text, Button
 from core.graphics import Gfx
 from . import Menu
 from .state import State
