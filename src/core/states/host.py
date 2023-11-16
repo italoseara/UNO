@@ -2,7 +2,7 @@ from random import randint
 
 import pygame
 
-from assets.components import Text, Button, TextInput
+from assets.components import Text, Button, TextInput, TempText
 from core.graphics import Gfx
 from .party import Party
 from .state import State
@@ -54,10 +54,15 @@ class Host(State):
         port = self._client.get_component("port").text
 
         if not self.__check_nickname(nickname):
-            print("nickname is invalid")
+            self._client.add_component(
+                TempText("Nickname invalid", self._client.width // 2, 550, 3000,
+                         font_size=30, align="center"))
             return
 
         if not self._client.check_port("localhost", port):
+            self._client.add_component(
+                TempText("Port is already in use", self._client.width // 2, 550, 3000,
+                         font_size=30, align="center"))
             print("port is already in use")
             return
 
