@@ -61,15 +61,29 @@ class Join(State):
         ip = self._client.get_component("ip").text
 
         if not self.__check_nickname(nickname):
+            if self._client.get_component("error1") is not None: # Remove the component error if it exists
+                self._client.pop_component("error1")
+
             self._client.add_component(
                 TempText("Nickname invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"))
+                         font_size=30, align="center"), id="erro1r")
             return
 
+        if not self.__check_ip(ip):
+            if self._client.get_component("error2") is not None:
+                self._client.pop_component("error2")
+
+            self._client.add_component(
+                TempText("IP invalid", self._client.width // 2, 550, 3000,
+                         font_size=30, align="center"), id="error2")
+            return
         if not self._client.check_port(ip, port):
+            if self._client.get_component("error3") is not None:
+                self._client.pop_component("error3")
+
             self._client.add_component(
                 TempText("Server not found", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"))
+                         font_size=30, align="center"), id="error3")
             return
 
         self._client.connect("localhost", port)
@@ -77,6 +91,9 @@ class Join(State):
 
     def __check_nickname(self, nickname: str) -> bool:
         return 3 < len(nickname) <= 16
+
+    def __check_ip(self, ip: str) -> bool:
+        return ip != ""
 
     def update(self, dt: float):
         pass
