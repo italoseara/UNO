@@ -1,11 +1,11 @@
-from random import randint
-
 import pygame
 
-from assets.components import Text, Button, TextInput
+from assets.components import Text, Button, TextInput, TempText
 from core.graphics import Gfx
 from .party import Party
 from .state import State
+
+from ..connection import Network
 
 
 class Host(State):
@@ -50,18 +50,29 @@ class Host(State):
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
     def __host_server(self, button: Button):
-        nickname = self._client.get_component("nickname").text
+        nickname = self._client.get_component("nickname").text.strip()
         port = self._client.get_component("port").text
+
+        if not self.__check_nickname(nickname):
+            self._client.add_component(
+                TempText("Nickname invalid", self._client.width // 2, 550, 3000,
+                         font_size=30, align="center"))
+            return
+
+        if not Network.check_port("localhost", port):
+            self._client.add_component(
+                TempText("Port is already in use", self._client.width // 2, 550, 3000,
+                         font_size=30, align="center"))
+            return
 
         self._client.host_server(port)
         pygame.time.wait(500)  # Espera o servidor iniciar
         self._client.connect("localhost", port)
 
-        # self._client.send({"type": "join", "nickname": nickname})
         self._client.state = Party(self._client)
 
-    def update(self, dt: float):
-        pass
+    def __check_nickname(self, nickname: str) -> bool:
+        return 3 < len(nickname) <= 16
 
     def update_server(self):
         pass
@@ -70,3 +81,4 @@ class Host(State):
         surface.blit(Gfx.BACKGROUND, (0, 0))
         surface.blit(self.__cards[0], (40, 200))
         surface.blit(self.__cards[1], (610, 250))
+

@@ -1,11 +1,11 @@
-from random import randint
-
 import pygame
 
-from assets.components import Text, Button, TextInput
+from assets.components import Text, Button, TextInput, TempText
 from core.graphics import Gfx
 from .party import Party
 from .state import State
+
+from ..connection import Network
 
 
 class Join(State):
@@ -52,18 +52,41 @@ class Join(State):
         self._client.add_component(
             Button("> Join Match <", cx, 475, width=300, height=50,
                    font_size=40, align="center", animation="up",
-                   on_click=self.__host_server))
+                   on_click=self.__join_server))
 
         self._client.add_component(
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
-    def __host_server(self, button: Button):
+    def __join_server(self, button: Button):
+        nickname = self._client.get_component("nickname").text.strip()
+        port = self._client.get_component("port").text
         ip = self._client.get_component("ip").text
-        port = int(self._client.get_component("port").text)
-        nickname = self._client.get_component("nickname").text
 
-        self._client.connect(ip, port)
+        if not self.__check_nickname(nickname):
+            self._client.add_component(
+                TempText("Nickname invalid", self._client.width // 2, 550, 3000,
+                         font_size=30, align="center"))
+            return
+
+        if not self.__check_ip(ip):
+            self._client.add_component(
+                TempText("IP invalid", self._client.width // 2, 550, 3000,
+                         font_size=30, align="center"))
+            return
+        if not Network.check_port(ip, port):
+            self._client.add_component(
+                TempText("Server not found", self._client.width // 2, 550, 3000,
+                         font_size=30, align="center"))
+            return
+
+        self._client.connect("localhost", port)
         self._client.state = Party(self._client)
+
+    def __check_nickname(self, nickname: str) -> bool:
+        return 3 < len(nickname) <= 16
+
+    def __check_ip(self, ip: str) -> bool:
+        return ip != ""
 
     def update(self, dt: float):
         pass

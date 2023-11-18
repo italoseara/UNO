@@ -1,7 +1,8 @@
 import pygame
 
-from assets.components import Text, Button, TextInput
+from assets.components import Text, Button
 from core.graphics import Gfx
+from . import Menu
 from .state import State
 
 
@@ -12,6 +13,15 @@ class Party(State):
 
         self._client.add_component(
             Text("Party", cx, cy, font_color="black", font_size=72, align="center"))
+
+        self._client.add_component(
+            Button("< Back", 10, 560, height=30, font_size=32, on_click=self.__exit_party))
+
+    def __exit_party(self, button: Button):
+        self._client.disconnect()
+        self._client.close_server()
+        self._client.state = Menu(self._client)
+
 
     def update(self, dt: float):
         pass

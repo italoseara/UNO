@@ -59,20 +59,10 @@ class TextInput(Component):
     @property
     def text(self) -> str | int:
         if self.__numeric:
+            if self.__user_input == "":
+                return 0
             return int(self.__user_input)
         return self.__user_input
-
-    def update(self, dt: float):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-
-        if pygame.mouse.get_pressed()[0]:
-            # Tira o foco da caixa de texto
-            if not self.__input_rect.collidepoint(mouse_x, mouse_y):
-                self.__on_focus = False
-
-            # Põe o foco na caixa de texto
-            if self.__input_rect.collidepoint(mouse_x, mouse_y):
-                self.__on_focus = True
 
     def on_keydown(self, event: pygame.event):
         if self.__on_focus:
@@ -86,6 +76,18 @@ class TextInput(Component):
                     if self.__numeric and not event.unicode.isnumeric():
                         return
                     self.__user_input += event.unicode  # Adiciona o input à string, seja numero ou letra
+
+    def update(self, dt: float):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        if pygame.mouse.get_pressed()[0]:
+            # Tira o foco da caixa de texto
+            if not self.__input_rect.collidepoint(mouse_x, mouse_y):
+                self.__on_focus = False
+
+            # Põe o foco na caixa de texto
+            if self.__input_rect.collidepoint(mouse_x, mouse_y):
+                self.__on_focus = True
 
     def draw(self, surface: pygame.Surface):
         # Desenha o background

@@ -5,6 +5,7 @@ import pygame
 from core.connection import Network, Server
 from core.states import State, Menu
 from engine import Engine, on_event
+import socket
 
 
 class Client(Engine):

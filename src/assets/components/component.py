@@ -2,10 +2,10 @@ import pygame
 
 
 class Component:
-    def update(self, dt: float):
+    def on_keydown(self, event: pygame.event):
         pass
 
-    def on_keydown(self, event: pygame.event):
+    def update(self, dt: float):
         pass
 
     def draw(self, surface: pygame.Surface):
