@@ -1,7 +1,7 @@
 import pygame
 import threading
 
-from assets.components import Component
+from assets.components import Component, TempText
 
 
 def on_event(type_: int):
@@ -141,14 +141,14 @@ class Engine:
 
         self.__components.clear()
 
-    def pop_component(self, id: str | None) -> None:
+    def pop_component(self, id: str | None) -> Component | None:
         """Clears a component from the screen.
 
         Args:
             id (str): The id of the component.
         """
 
-        self.__components.pop(id, None)
+        return self.__components.pop(id, None)
 
     def run(self) -> None:
         """Runs the game loop."""
@@ -161,8 +161,10 @@ class Engine:
 
             self.update(dt)  # Update the game state
             try:
-                for comp in self.__components.values():  # Update The components
+                for key, comp in self.__components.items():  # Update The components
                     comp.update(dt)
+                    if isinstance(comp, TempText) and comp.is_expired:
+                        self.pop_component(key)  # Remove the component if it's expired
             except RuntimeError:
                 pass
 

@@ -5,6 +5,8 @@ from core.graphics import Gfx
 from .party import Party
 from .state import State
 
+from ..connection import Network
+
 
 class Host(State):
     def __init__(self, client):
@@ -52,22 +54,15 @@ class Host(State):
         port = self._client.get_component("port").text
 
         if not self.__check_nickname(nickname):
-            if self._client.get_component("error1") is not None: # remove the component if it already exists
-                self._client.pop_component("error1")
-
             self._client.add_component(
                 TempText("Nickname invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"), id="error1")
+                         font_size=30, align="center"))
             return
 
-        if not self._client.check_port("localhost", port):
-            if self._client.get_component("error3") is not None:
-                self._client.pop_component("error3")
-
+        if not Network.check_port("localhost", port):
             self._client.add_component(
                 TempText("Port is already in use", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"), id="error3")
-            print("port is already in use")
+                         font_size=30, align="center"))
             return
 
         self._client.host_server(port)

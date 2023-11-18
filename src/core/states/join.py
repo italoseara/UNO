@@ -5,6 +5,8 @@ from core.graphics import Gfx
 from .party import Party
 from .state import State
 
+from ..connection import Network
+
 
 class Join(State):
     def __init__(self, client):
@@ -61,29 +63,20 @@ class Join(State):
         ip = self._client.get_component("ip").text
 
         if not self.__check_nickname(nickname):
-            if self._client.get_component("error1") is not None: # Remove the component error if it exists
-                self._client.pop_component("error1")
-
             self._client.add_component(
                 TempText("Nickname invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"), id="error1")
+                         font_size=30, align="center"))
             return
 
         if not self.__check_ip(ip):
-            if self._client.get_component("error2") is not None:
-                self._client.pop_component("error2")
-
             self._client.add_component(
                 TempText("IP invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"), id="error2")
+                         font_size=30, align="center"))
             return
-        if not self._client.check_port(ip, port):
-            if self._client.get_component("error3") is not None:
-                self._client.pop_component("error3")
-
+        if not Network.check_port(ip, port):
             self._client.add_component(
                 TempText("Server not found", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"), id="error3")
+                         font_size=30, align="center"))
             return
 
         self._client.connect("localhost", port)
