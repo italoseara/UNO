@@ -66,7 +66,7 @@ class Join(State):
 
             self._client.add_component(
                 TempText("Nickname invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"), id="erro1r")
+                         font_size=30, align="center"), id="error1")
             return
 
         if not self.__check_ip(ip):
