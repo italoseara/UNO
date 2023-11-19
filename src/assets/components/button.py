@@ -1,4 +1,6 @@
 import pygame
+from util import lerp
+
 from .component import Component
 
 
@@ -45,8 +47,8 @@ class Button(Component):
         self.__border_radius = border_radius
 
         # Animação ao passar o mouse
-        self.__current_x = x
-        self.__current_y = y
+        self.__init_x = x
+        self.__init_y = y
         self.__current_color = pygame.Color(font_color)
         self.__animation = animation
 
@@ -62,15 +64,15 @@ class Button(Component):
 
     def __set_pos(self, x: int, y: int):
         # Muda a posição do botão gradualmente
-        self.__current_x += 0.1 * (x - self.__current_x)
-        self.__current_y += 0.1 * (y - self.__current_y)
+        self.__x = lerp(self.__x, x, 0.1)
+        self.__y = lerp(self.__y, y, 0.1)
 
         if self.__align == "topleft":
-            self.__rect.topleft = (self.__current_x, self.__current_y)
-            self.__border.topleft = (self.__current_x, self.__current_y)
+            self.__rect.topleft = (self.__x, self.__y)
+            self.__border.topleft = (self.__x, self.__y)
         elif self.__align == "center":
-            self.__rect.center = (self.__current_x, self.__current_y)
-            self.__border.center = (self.__current_x, self.__current_y)
+            self.__rect.center = (self.__x, self.__y)
+            self.__border.center = (self.__x, self.__y)
 
     def __set_color(self, color: tuple[int, int, int] | str):
         self.__current_color = self.__current_color.lerp(color, 0.1)
@@ -85,13 +87,13 @@ class Button(Component):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.__rect.collidepoint(mouse_x, mouse_y):
             if self.__animation == "right":
-                self.__set_pos(self.__x + 15, self.__y)
+                self.__set_pos(self.__init_x + 15, self.__init_y)
             elif self.__animation == "left":
-                self.__set_pos(self.__x - 15, self.__y)
+                self.__set_pos(self.__init_x - 15, self.__init_y)
             elif self.__animation == "up":
-                self.__set_pos(self.__x, self.__y - 10)
+                self.__set_pos(self.__init_x, self.__init_y - 10)
             elif self.__animation == "down":
-                self.__set_pos(self.__x, self.__y + 10)
+                self.__set_pos(self.__init_x, self.__init_y + 10)
 
             self.__set_color(self.__hover_color)
 
@@ -100,7 +102,7 @@ class Button(Component):
                     self.__on_click(self)
                 self.__is_pressing = True
         else:
-            self.__set_pos(self.__x, self.__y)
+            self.__set_pos(self.__init_x, self.__init_y)
             self.__set_color(self.__font_color)
 
     def on_keydown(self, event: pygame.event):
@@ -120,8 +122,8 @@ class Button(Component):
         text = self.__font.render(self.__text, True, self.__current_color)
         txt_rect = text.get_rect()
 
-        x = self.__current_x
-        y = self.__current_y
+        x = self.__x
+        y = self.__y
 
         # Ajusta a posição do texto
         if self.__align == "topleft":

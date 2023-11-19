@@ -20,16 +20,20 @@ class Text(Component):
         self._y = y
         self._align = align
 
+    def _render_text(self) -> tuple[pygame.Surface, pygame.Rect]:
+        surface = self._font.render(self._text, True, self._font_color)
+        rect = surface.get_rect()
+
+        if self._align == "topleft":
+            rect.topleft = (self._x, self._y)
+        elif self._align == "center":
+            rect.center = (self._x, self._y)
+
+        return surface, rect
+
     def update(self, dt: float):
         pass
 
     def draw(self, surface: pygame.Surface):
-        text = self._font.render(self._text, True, self._font_color)
-        text_rect = text.get_rect()
-
-        if self._align == "topleft":
-            text_rect.topleft = (self._x, self._y)
-        elif self._align == "center":
-            text_rect.center = (self._x, self._y)
-
-        surface.blit(text, text_rect)
+        text, rect = self._render_text()
+        surface.blit(text, rect)

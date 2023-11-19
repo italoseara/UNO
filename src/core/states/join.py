@@ -1,11 +1,10 @@
 import pygame
 
-from assets.components import Text, Button, TextInput, TempText
+from assets.components import Text, Button, TextInput, WarningText
+from core.connection import Network
 from core.graphics import Gfx
 from .party import Party
 from .state import State
-
-from ..connection import Network
 
 
 class Join(State):
@@ -64,19 +63,20 @@ class Join(State):
 
         if not self.__check_nickname(nickname):
             self._client.add_component(
-                TempText("Nickname invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"))
+                WarningText("Invalid Nickname", self._client.width // 2, 550,
+                            font_size=30, align="center"))
             return
 
         if not self.__check_ip(ip):
             self._client.add_component(
-                TempText("IP invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"))
+                WarningText("Invalid IP Address", self._client.width // 2, 550,
+                            font_size=30, align="center"))
             return
+
         if not Network.check_port(ip, port):
             self._client.add_component(
-                TempText("Server not found", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"))
+                WarningText("Server not found", self._client.width // 2, 550,
+                            font_size=30, align="center"))
             return
 
         self._client.connect("localhost", port)
