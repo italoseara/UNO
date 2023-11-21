@@ -1,7 +1,8 @@
 import pygame
 
-from assets.components import Text, Button
 from core.graphics import Resources
+from core.connection import Network
+from assets.components import Text, Button
 
 from .state import State
 
@@ -42,7 +43,7 @@ class Credits(State):
     def update(self, dt: float):
         pass
 
-    def update_server(self):
+    def update_server(self, network: Network):
         pass
 
     def draw(self, surface: pygame.Surface):

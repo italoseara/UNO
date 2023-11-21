@@ -2,6 +2,7 @@ import sys
 import socket
 import pickle
 import threading
+from typing import Any
 
 from core.match import Match
 
@@ -106,17 +107,17 @@ class Server:
 
         while client_id in self.__clients.keys():
             try:
-                # TODO: Handle client requests
-                # data = client.recv(4096).decode()
-                # match data.split(" "):
-                #     case ["restart"]:
-                #         self.__match.restart()
-                #     case ["play", card]:
-                #         self.__match.play(client_id, card)
-                #     case ["get"]:
-                #         pass
-                #     case _:
-                #         break
+                data: dict[str, Any] = pickle.loads(client.recv(1024))
+                match data["type"]:
+                    case "GET":
+                        # Não faz nada, já que a partida é enviada no final do loop
+                        pass
+                    case "PLAY":
+                        # TODO: Implementar
+                        pass
+                    case _:
+                        print(f"[Server] Unknown request: {data['type']}")
+                        break
 
                 client.send(pickle.dumps(self.__match))  # Envia a partida atualizada para o cliente
             except Exception as e:

@@ -1,5 +1,7 @@
 import pygame
 
+from core.connection import Network
+
 
 class State:
     def __init__(self, client):
@@ -9,7 +11,9 @@ class State:
             client (Client): Cliente.
         """
 
-        self._client = client
+        from core.client import Client  # Evita dependência circular
+
+        self._client: Client = client
 
     def init(self):
         """Inicializa o estado. Pode ser chamado várias vezes a fim de reiniciar o estado."""
@@ -23,7 +27,7 @@ class State:
         """
         pass
 
-    def update_server(self):
+    def update_server(self, network: Network):
         """Atualiza o servidor."""
         pass
 

@@ -3,6 +3,7 @@ import pygame
 from assets.components import Text, Button, TextInput, WarningText
 from core.connection import Network
 from core.graphics import Resources
+
 from .party import Party
 from .state import State
 
@@ -74,7 +75,7 @@ class Host(State):
     def __validate_nickname(nickname: str) -> bool:
         return 3 < len(nickname) <= 16
 
-    def update_server(self):
+    def update_server(self, network: Network):
         pass
 
     def draw(self, surface: pygame.Surface):

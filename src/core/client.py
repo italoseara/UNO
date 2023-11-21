@@ -5,7 +5,6 @@ import pygame
 from core.connection import Network, Server
 from core.states import State, Menu
 from engine import Engine, on_event
-import socket
 
 
 class Client(Engine):
@@ -104,7 +103,7 @@ class Client(Engine):
     def update_server(self) -> None:
         """Atualiza o servidor."""
 
-        self.__state.update_server()
+        self.__state.update_server(self.__network)
 
     def draw(self) -> None:
         """Desenha o jogo."""

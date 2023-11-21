@@ -26,6 +26,10 @@ class Network:
         self.__client = None
         self.__id = self.connect()
 
+    @property
+    def id(self) -> int:
+        return self.__id
+
     @staticmethod
     def check_port(ip: str, port: int) -> bool:
         if port < 1 or port > 65535:
@@ -63,7 +67,7 @@ class Network:
 
         Examples:
             >>> network = Network("localhost", 5555)
-            >>> network.send({"id": 1, "action": "draw"})
+            >>> network.send({"id": 1, "type": "GET"})
             Match(...)
         """
 

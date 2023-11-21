@@ -111,8 +111,13 @@ class Engine:
     def __handle_server(self) -> None:
         """Handles the server."""
 
+        ups = 20  # Limits the server to 20 updates per second
+
+        last = pygame.time.get_ticks()
         while self.__is_running:
-            self.update_server()
+            if pygame.time.get_ticks() - last >= 1000 // ups:
+                self.update_server()
+                last = pygame.time.get_ticks()
 
     def add_component(self, component: Component, id: str = None) -> None:
         """Adds a component to the screen.

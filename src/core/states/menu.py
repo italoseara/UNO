@@ -1,6 +1,7 @@
 import pygame
 
 from core.graphics import Resources
+from core.connection import Network
 from assets.components import Button, Text
 
 from .state import State
@@ -46,7 +47,7 @@ class Menu(State):
     def update(self, dt: float):
         pass
 
-    def update_server(self):
+    def update_server(self, network: Network):
         pass
 
     def draw(self, surface: pygame.Surface):

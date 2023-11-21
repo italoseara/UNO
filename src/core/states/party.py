@@ -2,7 +2,9 @@ import pygame
 
 from assets.components import Text, Button
 from core.graphics import Resources
-from . import Menu
+from core.connection import Network
+
+from .menu import Menu
 from .state import State
 
 
@@ -22,12 +24,17 @@ class Party(State):
         self._client.close_server()
         self._client.state = Menu(self._client)
 
-
     def update(self, dt: float):
         pass
 
-    def update_server(self):
-        pass
+    def update_server(self, network: Network):
+        if network is None:
+            return
+
+        print(network.send({
+            "id": network.id,
+            "type": "GET"
+        }))
 
     def draw(self, surface: pygame.Surface):
         surface.blit(Resources.BACKGROUND, (0, 0))

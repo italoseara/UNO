@@ -3,6 +3,7 @@ import pygame
 from assets.components import Text, Button, TextInput, WarningText
 from core.connection import Network
 from core.graphics import Resources
+
 from .party import Party
 from .state import State
 
@@ -93,7 +94,7 @@ class Join(State):
     def update(self, dt: float):
         pass
 
-    def update_server(self):
+    def update_server(self, network: Network):
         pass
 
     def draw(self, surface: pygame.Surface):
