@@ -3,13 +3,21 @@ import pygame
 import os
 
 
-class Gfx:
+class Resources:
+    """Classe de recursos gráficos, como imagens."""
+
     LOGO = pygame.image.load("src/assets/images/logo.png")
     MENU_BACKGROUND = pygame.image.load("src/assets/images/background/menu.png")
     CREDITS_BACKGROUND = pygame.image.load("src/assets/images/background/credits.png")
 
     @staticmethod
     def random_card() -> pygame.Surface:
+        """Seleciona uma carta aleatória.
+
+        Returns:
+            Surface: Imagem da carta 500% maior que a imagem original.
+        """
+
         files = os.listdir("src/assets/images/cards")
         file = random.choice(files)
 

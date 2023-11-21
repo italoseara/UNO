@@ -1,1 +1,1 @@
-from .gfx import Gfx
+from .resources import Resources
