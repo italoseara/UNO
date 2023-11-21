@@ -1,7 +1,7 @@
 import pygame
 
 from assets.components import Text, Button
-from core.graphics import Gfx
+from core.graphics import Resources
 
 from .state import State
 
@@ -10,8 +10,8 @@ class Credits(State):
     def __init__(self, client):
         super().__init__(client)
         self.__random_cards = [
-            pygame.transform.rotate(Gfx.random_card(), 15),
-            pygame.transform.rotate(Gfx.random_card(), -15)
+            pygame.transform.rotate(Resources.random_card(), 15),
+            pygame.transform.rotate(Resources.random_card(), -15)
         ]
 
     def init(self):
@@ -46,6 +46,6 @@ class Credits(State):
         pass
 
     def draw(self, surface: pygame.Surface):
-        surface.blit(Gfx.BACKGROUND, (0, 0))
+        surface.blit(Resources.BACKGROUND, (0, 0))
         surface.blit(self.__random_cards[0], (40, 130))
         surface.blit(self.__random_cards[1], (610, 210))

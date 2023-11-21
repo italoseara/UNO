@@ -2,11 +2,25 @@ import pygame
 
 
 class Component:
-    def on_keydown(self, event: pygame.event):
+    def update(self, dt: float):
+        """Atualiza o componente.
+
+        Args:
+            dt (float): Delta time. Tempo desde o último frame.
+        """
         pass
 
-    def update(self, dt: float):
-        pass
+    def on_keydown(self, event: pygame.event):
+        """Evento de tecla pressionada.
+
+        Args:
+            event (pygame.event): Evento de tecla pressionada.
+        """
 
     def draw(self, surface: pygame.Surface):
+        """Desenha o componente.
+
+        Args:
+            surface (pygame.Surface): Superfície onde o componente será desenhado.
+        """
         pass

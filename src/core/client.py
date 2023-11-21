@@ -45,13 +45,19 @@ class Client(Engine):
 
     @on_event(pygame.QUIT)
     def on_quit(self, _) -> None:
+        """Evento de saída do jogo."""
+
         self.disconnect()
         self.close_server()
 
     def pop_state(self, *args, **kwargs) -> None:
+        """Retorna ao estado anterior."""
+
         self.state = self.__last_state
 
     def connect(self, ip: str, port: int) -> None:
+        """Conecta ao servidor."""
+
         if self.__network is not None:
             self.__network.disconnect()
 
@@ -66,6 +72,8 @@ class Client(Engine):
         self.__server_thread.start()
 
     def disconnect(self) -> None:
+        """Desconecta do servidor."""
+
         if self.__network is not None:
             self.__network.disconnect()
             self.__network = None
@@ -80,14 +88,25 @@ class Client(Engine):
             self.__server_thread = None
 
     def init(self) -> None:
+        """Inicializa o jogo."""
+
         self.__state.init()
 
     def update(self, dt: float) -> None:
+        """Atualiza o jogo.
+
+        Args:
+            dt (float): Delta time. Tempo desde o último frame.
+        """
+
         self.__state.update(dt)
 
     def update_server(self) -> None:
+        """Atualiza o servidor."""
+
         self.__state.update_server()
 
     def draw(self) -> None:
-        self.__state.draw(self._surface)
+        """Desenha o jogo."""
 
+        self.__state.draw(self._surface)

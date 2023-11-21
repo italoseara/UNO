@@ -2,7 +2,7 @@ import pygame
 
 from assets.components import Text, Button, TextInput, WarningText
 from core.connection import Network
-from core.graphics import Gfx
+from core.graphics import Resources
 from .party import Party
 from .state import State
 
@@ -11,8 +11,8 @@ class Join(State):
     def __init__(self, client):
         super().__init__(client)
         self.__cards = [
-            pygame.transform.rotate(Gfx.BACK_CARD, 15),
-            pygame.transform.rotate(Gfx.WORLD_CARD, -15)
+            pygame.transform.rotate(Resources.BACK_CARD, 15),
+            pygame.transform.rotate(Resources.WORLD_CARD, -15)
         ]
 
     def init(self):
@@ -82,10 +82,12 @@ class Join(State):
         self._client.connect("localhost", port)
         self._client.state = Party(self._client)
 
-    def __check_nickname(self, nickname: str) -> bool:
+    @staticmethod
+    def __check_nickname(nickname: str) -> bool:
         return 3 < len(nickname) <= 16
 
-    def __check_ip(self, ip: str) -> bool:
+    @staticmethod
+    def __check_ip(ip: str) -> bool:
         return ip != ""
 
     def update(self, dt: float):
@@ -95,6 +97,6 @@ class Join(State):
         pass
 
     def draw(self, surface: pygame.Surface):
-        surface.blit(Gfx.BACKGROUND, (0, 0))
+        surface.blit(Resources.BACKGROUND, (0, 0))
         surface.blit(self.__cards[0], (40, 200))
         surface.blit(self.__cards[1], (610, 250))

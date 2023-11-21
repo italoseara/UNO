@@ -2,6 +2,7 @@ import socket
 import pickle
 
 from typing import Any
+from core.match import Match
 
 
 class Network:
@@ -13,6 +14,13 @@ class Network:
     __client: socket.socket | None
 
     def __init__(self, host: str, port: int):
+        """Inicializa a conexão com o servidor
+
+        Args:
+            host (str): Endereço do servidor
+            port (int): Porta do servidor
+        """
+
         self.__host = host
         self.__port = port
         self.__client = None
@@ -28,6 +36,8 @@ class Network:
         return result != 0
 
     def connect(self) -> int:
+        """Conecta o cliente ao servidor"""
+
         self.__client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__client.connect((self.__host, self.__port))
         self.__running = True
@@ -36,14 +46,30 @@ class Network:
         return int(self.__client.recv(2048).decode())
 
     def disconnect(self):
+        """Desconecta o cliente do servidor"""
+
         print("Disconnecting client...")
         self.__running = False
         self.__client.close()
 
-    def send(self, data: str) -> Any:
+    def send(self, data: dict[str, Any]) -> Match:
+        """Envia dados para o servidor
+
+        Args:
+            data (dict[str, Any]): Dados a serem enviados para o servidor
+
+        Returns:
+            Match: Partida atualizada
+
+        Examples:
+            >>> network = Network("localhost", 5555)
+            >>> network.send({"id": 1, "action": "draw"})
+            Match(...)
+        """
+
         if self.__running:
             try:
-                self.__client.send(str.encode(data))
-                return pickle.loads(self.__client.recv(4096))
+                self.__client.send(pickle.dumps(data))  # Envia dados para o servidor
+                return pickle.loads(self.__client.recv(4096))  # Retorna a partida
             except socket.error as e:
                 print(e)

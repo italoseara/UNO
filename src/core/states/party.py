@@ -1,7 +1,7 @@
 import pygame
 
 from assets.components import Text, Button
-from core.graphics import Gfx
+from core.graphics import Resources
 from . import Menu
 from .state import State
 
@@ -30,4 +30,4 @@ class Party(State):
         pass
 
     def draw(self, surface: pygame.Surface):
-        surface.blit(Gfx.BACKGROUND, (0, 0))
+        surface.blit(Resources.BACKGROUND, (0, 0))

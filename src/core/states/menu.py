@@ -1,6 +1,6 @@
 import pygame
 
-from core.graphics import Gfx
+from core.graphics import Resources
 from assets.components import Button, Text
 
 from .state import State
@@ -51,4 +51,4 @@ class Menu(State):
 
     def draw(self, surface: pygame.Surface):
         # Desenha o fundo
-        surface.blit(Gfx.MENU_BACKGROUND, (0, 0))
+        surface.blit(Resources.MENU_BACKGROUND, (0, 0))
