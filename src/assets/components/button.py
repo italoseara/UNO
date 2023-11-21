@@ -9,6 +9,7 @@ class Button(Component):
                  width: int | str = "auto",
                  height: int | str = "auto",
                  text_align: str = "center",
+                 align: str = "topleft",
                  font: str = "ThaleahFat",
                  font_size: int = 20,
                  font_color: tuple[int, int, int] | str = "white",
@@ -17,11 +18,12 @@ class Button(Component):
                  border_radius: int = 0,
                  border_width: int = 0,
                  border_color: tuple[int, int, int] | str = "black",
+                 animation: str = "right",
                  on_click: callable = None):
         # Texto
         self.__text = text
         self.__text_align = text_align
-        self.__font = pygame.font.Font(f"src/assets/fonts/{font}.ttf", font_size)
+        self.__font = pygame.font.Font(f"./src/assets/fonts/{font}.ttf", font_size)
         self.__font_color = font_color
         self.__hover_color = hover_color
 
@@ -30,6 +32,7 @@ class Button(Component):
         self.__y = y
         self.__width = self.__font.size(text)[0] + 20 if width == "auto" else width
         self.__height = self.__font.size(text)[1] - 20 if height == "auto" else height
+        self.__align = align
 
         # Botão
         self.__rect = pygame.Rect((self.__x, self.__y), (self.__width, self.__height))
@@ -45,6 +48,7 @@ class Button(Component):
         self.__current_x = x
         self.__current_y = y
         self.__current_color = pygame.Color(font_color)
+        self.__animation = animation
 
         # Função a ser executada
         self.__on_click = on_click
@@ -61,11 +65,12 @@ class Button(Component):
         self.__current_x += 0.1 * (x - self.__current_x)
         self.__current_y += 0.1 * (y - self.__current_y)
 
-        self.__rect.x = self.__current_x
-        self.__rect.y = self.__current_y
-
-        self.__border.x = self.__current_x
-        self.__border.y = self.__current_y
+        if self.__align == "topleft":
+            self.__rect.topleft = (self.__current_x, self.__current_y)
+            self.__border.topleft = (self.__current_x, self.__current_y)
+        elif self.__align == "center":
+            self.__rect.center = (self.__current_x, self.__current_y)
+            self.__border.center = (self.__current_x, self.__current_y)
 
     def __set_color(self, color: tuple[int, int, int] | str):
         self.__current_color = self.__current_color.lerp(color, 0.1)
@@ -79,7 +84,15 @@ class Button(Component):
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if self.__rect.collidepoint(mouse_x, mouse_y):
-            self.__set_pos(self.__x + 15, self.__y)
+            if self.__animation == "right":
+                self.__set_pos(self.__x + 15, self.__y)
+            elif self.__animation == "left":
+                self.__set_pos(self.__x - 15, self.__y)
+            elif self.__animation == "up":
+                self.__set_pos(self.__x, self.__y - 10)
+            elif self.__animation == "down":
+                self.__set_pos(self.__x, self.__y + 10)
+
             self.__set_color(self.__hover_color)
 
             if pygame.mouse.get_pressed()[0] and not self.__is_pressing:
@@ -107,15 +120,24 @@ class Button(Component):
         text = self.__font.render(self.__text, True, self.__current_color)
         txt_rect = text.get_rect()
 
+        x = self.__current_x
+        y = self.__current_y
+
+        # Ajusta a posição do texto
+        if self.__align == "topleft":
+            if self.__text_align == "center":
+                x += self.__width // 2
+                y += self.__height // 2
+            elif self.__text_align == "left":
+                x += 10
+                y += self.__height // 2
+        if self.__align == "center":
+            if self.__text_align == "left":
+                x -= self.__width // 2 - 10
+
         if self.__text_align == "center":
-            txt_rect.center = (
-                self.__current_x + self.__width / 2,
-                self.__current_y + self.__height / 2
-            )
+            txt_rect.center = (x, y)
         elif self.__text_align == "left":
-            txt_rect.midleft = (
-                self.__current_x + 10,
-                self.__current_y + self.__height / 2
-            )
+            txt_rect.midleft = (x, y)
 
         surface.blit(text, txt_rect)  # Desenha o texto na superfície do botão

@@ -38,9 +38,10 @@ class Server:
 
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server.bind((self.__host, self.__port))
+        self.__server.settimeout(1)  # Evita que o servidor fique preso no accept
         self.__server.listen(4)
         self.__running = True
-        print(f"Server is running on port {self.__port}")
+        print(f"[Server] Server is running on port {self.__port}")
 
         while self.__running:
             try:
@@ -52,18 +53,19 @@ class Server:
                 if len(self.__clients) == 4:
                     self.__match.ready = True
 
-                print(f"Client connected from {address[0]}:{address[1]}")
+                print(f"[Server] Client connected from {address[0]}:{address[1]}")
                 self.__add_client(client)
             except KeyboardInterrupt:
                 self.stop()
+            except OSError:  # Timeout
+                pass
 
-    def stop(self) -> None:
+    def stop(self):
         """Para o servidor"""
 
-        print("Stopping server...")
+        print("[Server] Stopping server...")
         self.__running = False
         self.__server.close()
-        sys.exit()
 
     def __add_client(self, client: socket.socket) -> None:
         """Adiciona um cliente ao servidor
@@ -100,7 +102,7 @@ class Server:
             client_id (int): ID do cliente
         """
 
-        client.send(str.encode(str(client_id)))  # Send client id
+        client.send(str.encode(str(client_id)))  # Envia o id do cliente quando ele se conecta pela primeira vez
 
         while client_id in self.__clients.keys():
             try:
@@ -121,7 +123,7 @@ class Server:
                 print(e)
                 break
 
-        print(f"Client {client_id} disconnected")
+        print(f"[Server] Client {client_id} disconnected")
         self.__remove_client(client_id)
 
         if len(self.__clients) == 0:

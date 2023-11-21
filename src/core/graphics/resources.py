@@ -7,8 +7,10 @@ class Resources:
     """Classe de recursos gráficos, como imagens."""
 
     LOGO = pygame.image.load("src/assets/images/logo.png")
+    BACKGROUND = pygame.image.load("src/assets/images/background/credits.png")
     MENU_BACKGROUND = pygame.image.load("src/assets/images/background/menu.png")
-    CREDITS_BACKGROUND = pygame.image.load("src/assets/images/background/credits.png")
+    WORLD_CARD = pygame.image.load("src/assets/images/world.png")
+    BACK_CARD = pygame.image.load("src/assets/images/back.png")
 
     @staticmethod
     def random_card() -> pygame.Surface:

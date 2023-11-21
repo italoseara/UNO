@@ -7,13 +7,14 @@ from .state import State
 
 
 class Credits(State):
-    __random_cards: list[pygame.Surface]
+    def __init__(self, client):
+        super().__init__(client)
+        self.__random_cards = [
+            pygame.transform.rotate(Resources.random_card(), 15),
+            pygame.transform.rotate(Resources.random_card(), -15)
+        ]
 
     def init(self):
-        self.__random_cards = []
-        self.__random_cards.append(pygame.transform.rotate(Resources.random_card(), 15))
-        self.__random_cards.append(pygame.transform.rotate(Resources.random_card(), -15))
-
         cx = self._client.width // 2
         cy = self._client.height // 2
 
@@ -45,6 +46,6 @@ class Credits(State):
         pass
 
     def draw(self, surface: pygame.Surface):
-        surface.blit(Resources.CREDITS_BACKGROUND, (0, 0))
+        surface.blit(Resources.BACKGROUND, (0, 0))
         surface.blit(self.__random_cards[0], (40, 130))
         surface.blit(self.__random_cards[1], (610, 210))

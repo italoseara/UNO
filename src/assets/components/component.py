@@ -16,7 +16,6 @@ class Component:
         Args:
             event (pygame.event): Evento de tecla pressionada.
         """
-        pass
 
     def draw(self, surface: pygame.Surface):
         """Desenha o componente.

@@ -26,6 +26,15 @@ class Network:
         self.__client = None
         self.__id = self.connect()
 
+    @staticmethod
+    def check_port(ip: str, port: int) -> bool:
+        if port < 1 or port > 65535:
+            return False
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex((ip, port))
+        sock.close()
+        return result != 0
+
     def connect(self) -> int:
         """Conecta o cliente ao servidor"""
 

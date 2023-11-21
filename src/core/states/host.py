@@ -8,12 +8,12 @@ from .state import State
 from ..connection import Network
 
 
-class Join(State):
+class Host(State):
     def __init__(self, client):
         super().__init__(client)
         self.__cards = [
-            pygame.transform.rotate(Resources.BACK_CARD, 15),
-            pygame.transform.rotate(Resources.WORLD_CARD, -15)
+            pygame.transform.rotate(Resources.WORLD_CARD, 15),
+            pygame.transform.rotate(Resources.BACK_CARD, -15)
         ]
 
     def init(self):
@@ -21,46 +21,37 @@ class Join(State):
         cy = self._client.height // 2
 
         self._client.add_component(
-            Text("Join a LAN match", cx, 60, font_size=72, align="center"))
+            Text("Host a LAN match", cx, 60, font_size=72, align="center"))
 
         self._client.add_component(
-            Text("Nickname:", cx, 150, font_size=35, align="center"))
+            Text("Nickname:", cx, 215, font_size=35, align="center"))
         self._client.add_component(
-            TextInput(cx, 195, 300, 50, font_size=30,
+            TextInput(cx, 260, 300, 50, font_size=30,
                       max_length_input=16,
                       text_align="center", font_color="white", background_color="#a30f17",
                       border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
             id="nickname")
 
         self._client.add_component(
-            Text("IP:", cx, 245, font_size=35, align="center"))
+            Text("Port:", cx, 310, font_size=35, align="center"))
         self._client.add_component(
-            TextInput(cx, 290, 300, 50, font_size=30,
-                      text_align="center", font_color="white", background_color="#a30f17",
-                      border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
-            id="ip")
-
-        self._client.add_component(
-            Text("Port:", cx, 340, font_size=35, align="center"))
-        self._client.add_component(
-            TextInput(cx, 385, 300, 50, font_size=30,
-                      max_length_input=5, numeric=True,
+            TextInput(cx, 355, 300, 50, font_size=30,
+                      max_length_input=5, default="25565", numeric=True,
                       text_align="center", font_color="white", background_color="#a30f17",
                       border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
             id="port")
 
         self._client.add_component(
-            Button("> Join Match <", cx, 475, width=300, height=50,
+            Button("> Start Match <", cx, 445, width=300, height=50,
                    font_size=40, align="center", animation="up",
-                   on_click=self.__join_server))
+                   on_click=self.__host_server))
 
         self._client.add_component(
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
-    def __join_server(self, button: Button):
+    def __host_server(self, button: Button):
         nickname = self._client.get_component("nickname").text.strip()
         port = self._client.get_component("port").text
-        ip = self._client.get_component("ip").text
 
         if not self.__check_nickname(nickname):
             self._client.add_component(
@@ -68,30 +59,21 @@ class Join(State):
                          font_size=30, align="center"))
             return
 
-        if not self.__check_ip(ip):
+        if not Network.check_port("localhost", port):
             self._client.add_component(
-                TempText("IP invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"))
-            return
-        if not Network.check_port(ip, port):
-            self._client.add_component(
-                TempText("Server not found", self._client.width // 2, 550, 3000,
+                TempText("Port is already in use", self._client.width // 2, 550, 3000,
                          font_size=30, align="center"))
             return
 
+        self._client.host_server(port)
+        pygame.time.wait(500)  # Espera o servidor iniciar
         self._client.connect("localhost", port)
+
         self._client.state = Party(self._client)
 
     @staticmethod
     def __check_nickname(nickname: str) -> bool:
         return 3 < len(nickname) <= 16
-
-    @staticmethod
-    def __check_ip(ip: str) -> bool:
-        return ip != ""
-
-    def update(self, dt: float):
-        pass
 
     def update_server(self):
         pass
@@ -100,3 +82,4 @@ class Join(State):
         surface.blit(Resources.BACKGROUND, (0, 0))
         surface.blit(self.__cards[0], (40, 200))
         surface.blit(self.__cards[1], (610, 250))
+

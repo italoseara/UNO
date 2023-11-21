@@ -11,25 +11,25 @@ class Text(Component):
                  font_color: tuple[int, int, int] | str = "white",
                  align: str = "topleft"):
         # Texto
-        self.__text = text
-        self.__font = pygame.font.Font(f"src/assets/fonts/{font}.ttf", font_size)
-        self.__font_color = font_color
+        self._text = text
+        self._font = pygame.font.Font(f"./src/assets/fonts/{font}.ttf", font_size)
+        self._font_color = font_color
 
         # Posição
-        self.__x = x
-        self.__y = y
-        self.__align = align
+        self._x = x
+        self._y = y
+        self._align = align
 
     def update(self, dt: float):
         pass
 
     def draw(self, surface: pygame.Surface):
-        text = self.__font.render(self.__text, True, self.__font_color)
+        text = self._font.render(self._text, True, self._font_color)
         text_rect = text.get_rect()
 
-        if self.__align == "topleft":
-            text_rect.topleft = (self.__x, self.__y)
-        elif self.__align == "center":
-            text_rect.center = (self.__x, self.__y)
+        if self._align == "topleft":
+            text_rect.topleft = (self._x, self._y)
+        elif self._align == "center":
+            text_rect.center = (self._x, self._y)
 
         surface.blit(text, text_rect)
