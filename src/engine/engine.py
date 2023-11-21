@@ -1,7 +1,7 @@
 import pygame
 import threading
 
-from assets.components import Component, TempText
+from assets.components import Component, WarningText
 
 
 def on_event(type_: int):
@@ -163,7 +163,7 @@ class Engine:
             try:
                 for key, comp in self.__components.items():  # Update The components
                     comp.update(dt)
-                    if isinstance(comp, TempText) and comp.is_expired:
+                    if isinstance(comp, WarningText) and comp.is_expired:
                         self.pop_component(key)  # Remove the component if it's expired
             except RuntimeError:
                 pass

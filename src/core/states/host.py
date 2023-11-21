@@ -1,11 +1,10 @@
 import pygame
 
-from assets.components import Text, Button, TextInput, TempText
+from assets.components import Text, Button, TextInput, WarningText
+from core.connection import Network
 from core.graphics import Resources
 from .party import Party
 from .state import State
-
-from ..connection import Network
 
 
 class Host(State):
@@ -53,16 +52,16 @@ class Host(State):
         nickname = self._client.get_component("nickname").text.strip()
         port = self._client.get_component("port").text
 
-        if not self.__check_nickname(nickname):
+        if not self.__validate_nickname(nickname):
             self._client.add_component(
-                TempText("Nickname invalid", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"))
+                WarningText("Invalid Nickname", self._client.width // 2, 550,
+                            font_size=30, align="center"))
             return
 
         if not Network.check_port("localhost", port):
             self._client.add_component(
-                TempText("Port is already in use", self._client.width // 2, 550, 3000,
-                         font_size=30, align="center"))
+                WarningText("Port is already in use", self._client.width // 2, 550,
+                            font_size=30, align="center"))
             return
 
         self._client.host_server(port)
@@ -72,7 +71,7 @@ class Host(State):
         self._client.state = Party(self._client)
 
     @staticmethod
-    def __check_nickname(nickname: str) -> bool:
+    def __validate_nickname(nickname: str) -> bool:
         return 3 < len(nickname) <= 16
 
     def update_server(self):
