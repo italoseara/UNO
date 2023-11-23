@@ -1,6 +1,7 @@
 import pygame
 
 from assets.components import Text, Button
+from core.match import Match
 from core.graphics import Resources
 from core.connection import Network
 
@@ -9,6 +10,12 @@ from .state import State
 
 
 class Party(State):
+    __match: Match | None
+
+    def __init__(self, client):
+        super().__init__(client)
+        self.__match = None
+
     def init(self):
         cx = self._client.width // 2
         cy = self._client.height // 2
@@ -31,10 +38,7 @@ class Party(State):
         if network is None:
             return
 
-        print(network.send({
-            "id": network.id,
-            "type": "GET"
-        }))
+        self.__match = network.send({"id": network.id, "type": "GET"})
 
     def draw(self, surface: pygame.Surface):
         surface.blit(Resources.BACKGROUND, (0, 0))
