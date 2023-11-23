@@ -38,7 +38,12 @@ class Party(State):
         if network is None:
             return
 
-        self.__match = network.send({"id": network.id, "type": "GET"})
+        # Se a partida já começou, volta para o menu
+        if network.id == -1:
+            self._client.state = Menu(self._client)
+            return
+
+        self.__match = network.send({"type": "GET"})
 
     def draw(self, surface: pygame.Surface):
         surface.blit(Resources.BACKGROUND, (0, 0))

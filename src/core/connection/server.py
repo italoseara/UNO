@@ -48,11 +48,17 @@ class Server:
             try:
                 client, address = self.__server.accept()
 
-                if len(self.__clients) == 4:
-                    self.__match.ready = True
+                if self.__match.ready:
+                    client.send(str.encode("-1"))  # Envia -1 para o cliente saber que a partida já começou
+                    client.close()
 
                 print(f"[Server] Client connected from {address[0]}:{address[1]}")
                 self.__add_client(client)
+
+                # Inicia a partida quando 4 jogadores se conectarem
+                if len(self.__clients) > 4:
+                    self.__match.ready = True
+
             except KeyboardInterrupt:
                 self.stop()
             except OSError:  # Timeout

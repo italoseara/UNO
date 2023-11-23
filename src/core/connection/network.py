@@ -44,6 +44,20 @@ class Network:
         except socket.error:
             return False
 
+    @staticmethod
+    def port_in_use(port: int) -> bool:
+        """Verifica se a porta está em uso"""
+
+        if port < 1 or port > 65535:
+            return False
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(("localhost", port))
+            return False
+        except socket.error:
+            return True
+
     def connect(self) -> int:
         """Conecta o cliente ao servidor"""
 
@@ -72,11 +86,13 @@ class Network:
 
         Examples:
             >>> network = Network("localhost", 5555)
-            >>> network.send({"id": 1, "type": "GET"})
+            >>> network.send({"type": "GET"})
             Match(...)
         """
 
         if self.__running:
+            data["id"] = self.__id
+
             try:
                 self.__client.send(pickle.dumps(data))  # Envia dados para o servidor
                 return pickle.loads(self.__client.recv(4096))  # Retorna a partida

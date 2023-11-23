@@ -61,8 +61,7 @@ class Host(State):
                             font_size=30, align="center"))
             return
 
-        # If the server is already running
-        if Network.server_running("localhost", port):
+        if Network.port_in_use(port):
             self._client.add_component(
                 WarningText("Port is already in use", self._client.width // 2, 550,
                             font_size=30, align="center"))
