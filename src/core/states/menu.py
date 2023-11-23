@@ -1,5 +1,6 @@
 import pygame
 
+from core.client import Client
 from core.graphics import Resources
 from core.connection import Network
 from assets.components import Button, Text
@@ -8,6 +9,7 @@ from .state import State
 
 
 class Menu(State):
+    _client: Client
 
     def init(self):
         self._client.add_component(

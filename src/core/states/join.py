@@ -1,14 +1,18 @@
 import pygame
 
-from assets.components import Text, Button, TextInput, WarningText
-from core.connection import Network
+from core.client import Client
 from core.graphics import Resources
+from core.connection import Network
+from assets.components import Text, Button, TextInput, WarningText
 
 from .party import Party
 from .state import State
 
 
 class Join(State):
+    _client: Client
+    __cards: list[pygame.Surface]
+
     def __init__(self, client):
         super().__init__(client)
         self.__cards = [

@@ -2,6 +2,8 @@ import pygame
 
 
 class Component:
+    """Classe base para os componentes do jogo."""
+
     def update(self, dt: float):
         """Atualiza o componente.
 

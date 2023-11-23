@@ -1,5 +1,6 @@
 import pygame
 
+from core.client import Client
 from core.graphics import Resources
 from core.connection import Network
 from assets.components import Text, Button
@@ -8,9 +9,12 @@ from .state import State
 
 
 class Credits(State):
+    _client: Client
+    __cards: list[pygame.Surface]
+
     def __init__(self, client):
         super().__init__(client)
-        self.__random_cards = [
+        self.__cards = [
             pygame.transform.rotate(Resources.random_card(), 15),
             pygame.transform.rotate(Resources.random_card(), -15)
         ]
@@ -48,5 +52,5 @@ class Credits(State):
 
     def draw(self, surface: pygame.Surface):
         surface.blit(Resources.BACKGROUND, (0, 0))
-        surface.blit(self.__random_cards[0], (40, 130))
-        surface.blit(self.__random_cards[1], (610, 210))
+        surface.blit(self.__cards[0], (40, 130))
+        surface.blit(self.__cards[1], (610, 210))

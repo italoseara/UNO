@@ -4,16 +4,10 @@ from core.connection import Network
 
 
 class State:
+    """Classe base para os estados do jogo."""
+
     def __init__(self, client):
-        """Inicializa o estado.
-
-        Args:
-            client (Client): Cliente.
-        """
-
-        from core.client import Client  # Evita dependência circular
-
-        self._client: Client = client
+        self._client = client
 
     def init(self):
         """Inicializa o estado. Pode ser chamado várias vezes a fim de reiniciar o estado."""
