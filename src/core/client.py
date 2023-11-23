@@ -2,8 +2,8 @@ import threading
 
 import pygame
 
-from core.connection import Network, Server
 from core.states import State, Menu
+from core.connection import Network, Server
 from engine import Engine, on_event
 
 

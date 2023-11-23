@@ -1,7 +1,6 @@
 import pygame
 
 from assets.components import Text, Button
-from core.client import Client
 from core.match import Match
 from core.graphics import Resources
 from core.connection import Network
@@ -11,10 +10,9 @@ from .state import State
 
 
 class Party(State):
-    _client: Client
     __match: Match | None
 
-    def __init__(self, client: Client):
+    def __init__(self, client):
         super().__init__(client)
         self.__match = None
 

@@ -1,6 +1,5 @@
 import pygame
 
-from core.client import Client
 from core.graphics import Resources
 from core.connection import Network
 from assets.components import Text, Button, TextInput, WarningText
@@ -10,7 +9,6 @@ from .state import State
 
 
 class Host(State):
-    _client: Client
     __cards: list[pygame.Surface]
 
     def __init__(self, client):
@@ -63,7 +61,8 @@ class Host(State):
                             font_size=30, align="center"))
             return
 
-        if not Network.check_port("localhost", port):
+        # If the server is already running
+        if Network.server_running("localhost", port):
             self._client.add_component(
                 WarningText("Port is already in use", self._client.width // 2, 550,
                             font_size=30, align="center"))

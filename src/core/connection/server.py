@@ -47,9 +47,6 @@ class Server:
         while self.__running:
             try:
                 client, address = self.__server.accept()
-                if self.__match.ready:
-                    client.close()
-                    continue
 
                 if len(self.__clients) == 4:
                     self.__match.ready = True
@@ -108,7 +105,7 @@ class Server:
         while client_id in self.__clients.keys():
             try:
                 data: dict[str, Any] = pickle.loads(client.recv(1024))
-                match data["type"]:
+                match data["type"].upper():
                     case "GET":
                         # Não faz nada, já que a partida é enviada no final do loop
                         pass

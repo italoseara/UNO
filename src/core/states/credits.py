@@ -1,6 +1,5 @@
 import pygame
 
-from core.client import Client
 from core.graphics import Resources
 from core.connection import Network
 from assets.components import Text, Button
@@ -9,7 +8,6 @@ from .state import State
 
 
 class Credits(State):
-    _client: Client
     __cards: list[pygame.Surface]
 
     def __init__(self, client):

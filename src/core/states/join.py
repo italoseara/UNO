@@ -1,6 +1,5 @@
 import pygame
 
-from core.client import Client
 from core.graphics import Resources
 from core.connection import Network
 from assets.components import Text, Button, TextInput, WarningText
@@ -10,7 +9,6 @@ from .state import State
 
 
 class Join(State):
-    _client: Client
     __cards: list[pygame.Surface]
 
     def __init__(self, client):
@@ -78,13 +76,13 @@ class Join(State):
                             font_size=30, align="center"))
             return
 
-        if not Network.check_port(ip, port):
+        if not Network.server_running(ip, port):
             self._client.add_component(
                 WarningText("Server not found", self._client.width // 2, 550,
                             font_size=30, align="center"))
             return
 
-        self._client.connect("localhost", port)
+        self._client.connect(ip, port)
         self._client.state = Party(self._client)
 
     @staticmethod

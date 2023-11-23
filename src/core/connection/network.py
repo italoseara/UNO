@@ -31,13 +31,18 @@ class Network:
         return self.__id
 
     @staticmethod
-    def check_port(ip: str, port: int) -> bool:
+    def server_running(ip: str, port: int) -> bool:
+        """Verifica se o servidor está online"""
+
         if port < 1 or port > 65535:
             return False
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = sock.connect_ex((ip, port))
-        sock.close()
-        return result != 0
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((ip, port))
+            return True
+        except socket.error:
+            return False
 
     def connect(self) -> int:
         """Conecta o cliente ao servidor"""
