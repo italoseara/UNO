@@ -83,8 +83,6 @@ class Server:
         client_thread = threading.Thread(target=self.__handle_client, args=(client, client_id))
         client_thread.start()
 
-        print(f"[Server] Client {client_id} connected")
-
     def __remove_client(self, client_id: int) -> None:
         """Remove um cliente do servidor
 
@@ -95,7 +93,9 @@ class Server:
         client = self.__clients.pop(client_id)
         client.close()
 
-        # TODO: Update match
+        nickname = self.__match.remove_player(client_id)
+        if nickname is not None:
+            print(f"[Server] {nickname} left the match")
 
     def __handle_client(self, client: socket.socket, client_id: int) -> None:
         """Lida com as requisições do cliente
@@ -115,15 +115,14 @@ class Server:
                         # Não faz nada, já que a partida é enviada no final do loop
                         pass
                     case "JOIN":
+                        print(f"[Server] {data['nickname']} joined the match")
                         self.__match.add_player(client_id, data["nickname"])
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break
 
                 client.send(pickle.dumps(self.__match))  # Envia a partida atualizada para o cliente
-            except Exception as e:
-                print(e)
+            except Exception:
                 break
 
-        print(f"[Server] Client {client_id} disconnected")
         self.__remove_client(client_id)

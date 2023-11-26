@@ -65,13 +65,13 @@ class Network:
         self.__client.connect((self.__host, self.__port))
         self.__running = True
 
-        print(f"Connected to {self.__host}:{self.__port}")
+        print(f"[Network] Connected to {self.__host}:{self.__port}")
         return int(self.__client.recv(2048).decode())
 
     def disconnect(self):
         """Desconecta o cliente do servidor"""
 
-        print("Disconnecting client...")
+        print("[Network] Disconnecting client...")
         self.__running = False
         self.__client.close()
 
@@ -95,7 +95,7 @@ class Network:
 
             try:
                 self.__client.send(pickle.dumps(data))  # Envia dados para o servidor
-                return pickle.loads(self.__client.recv(4096))  # Retorna a partida
+                return pickle.loads(self.__client.recv(32768))  # Retorna a partida (32kb)
             except socket.error as e:
                 print(e)
             except pickle.UnpicklingError:
