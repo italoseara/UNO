@@ -51,7 +51,7 @@ class Host(State):
         self._client.add_component(
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
-    def __host_server(self, button: Button):
+    def __host_server(self, _):
         nickname = self._client.get_component("nickname").text.strip()
         port = self._client.get_component("port").text
 
@@ -70,12 +70,13 @@ class Host(State):
         self._client.host_server(port)
         pygame.time.wait(500)  # Espera o servidor iniciar
         self._client.connect("localhost", port)
+        self._client.send({"type": "JOIN", "nickname": nickname})  # Envia o nickname para o servidor
 
         self._client.state = Party(self._client)
 
     @staticmethod
     def __validate_nickname(nickname: str) -> bool:
-        return 3 < len(nickname) <= 16
+        return 3 <= len(nickname) <= 16
 
     def update_server(self, network: Network):
         pass

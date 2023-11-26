@@ -1,7 +1,9 @@
 import threading
+from typing import Any
 
 import pygame
 
+from core.game import Match
 from core.states import State, Menu
 from core.connection import Network, Server
 from engine import Engine, on_event
@@ -49,10 +51,16 @@ class Client(Engine):
         self.disconnect()
         self.close_server()
 
-    def pop_state(self, *args, **kwargs) -> None:
+    def pop_state(self, *_, **__) -> None:
         """Retorna ao estado anterior."""
 
         self.state = self.__last_state
+
+    def send(self, data: dict[str, Any]) -> Match | None:
+        """Envia dados para o servidor."""
+
+        if self.__network is not None:
+            return self.__network.send(data)
 
     def connect(self, ip: str, port: int) -> None:
         """Conecta ao servidor."""

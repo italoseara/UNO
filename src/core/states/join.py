@@ -83,11 +83,20 @@ class Join(State):
             return
 
         self._client.connect(ip, port)
+
+        # Envia o nickname para o servidor e verifica se o servidor está cheio
+        if not self._client.send({"type": "JOIN", "nickname": nickname}):
+            self._client.disconnect()
+            self._client.add_component(
+                WarningText("Server is full", self._client.width // 2, 550,
+                            font_size=30, align="center"))
+            return
+
         self._client.state = Party(self._client)
 
     @staticmethod
     def __check_nickname(nickname: str) -> bool:
-        return 3 < len(nickname) <= 16
+        return 3 <= len(nickname) <= 16
 
     @staticmethod
     def __check_ip(ip: str) -> bool:

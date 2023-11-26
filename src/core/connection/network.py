@@ -2,7 +2,7 @@ import socket
 import pickle
 
 from typing import Any
-from core.match import Match
+from core.game.match import Match
 
 
 class Network:
@@ -75,7 +75,7 @@ class Network:
         self.__running = False
         self.__client.close()
 
-    def send(self, data: dict[str, Any]) -> Match:
+    def send(self, data: dict[str, Any]) -> Match | None:
         """Envia dados para o servidor
 
         Args:
@@ -98,3 +98,5 @@ class Network:
                 return pickle.loads(self.__client.recv(4096))  # Retorna a partida
             except socket.error as e:
                 print(e)
+            except pickle.UnpicklingError:
+                return None

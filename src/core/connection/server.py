@@ -1,10 +1,9 @@
-import sys
 import socket
 import pickle
 import threading
 from typing import Any
 
-from core.match import Match
+from core.game.match import Match
 
 
 class Server:
@@ -47,17 +46,13 @@ class Server:
         while self.__running:
             try:
                 client, address = self.__server.accept()
+                self.__add_client(client)
 
                 if self.__match.ready:
                     client.send(str.encode("-1"))  # Envia -1 para o cliente saber que a partida já começou
-                    client.close()
-
-                print(f"[Server] Client connected from {address[0]}:{address[1]}")
-                self.__add_client(client)
-
-                # Inicia a partida quando 4 jogadores se conectarem
-                if len(self.__clients) > 4:
-                    self.__match.ready = True
+                    self.__remove_client(len(self.__clients) - 1)
+                    print("[Server] Match already started")
+                    continue
 
             except KeyboardInterrupt:
                 self.stop()
@@ -88,6 +83,8 @@ class Server:
         client_thread = threading.Thread(target=self.__handle_client, args=(client, client_id))
         client_thread.start()
 
+        print(f"[Server] Client {client_id} connected")
+
     def __remove_client(self, client_id: int) -> None:
         """Remove um cliente do servidor
 
@@ -97,6 +94,8 @@ class Server:
 
         client = self.__clients.pop(client_id)
         client.close()
+
+        # TODO: Update match
 
     def __handle_client(self, client: socket.socket, client_id: int) -> None:
         """Lida com as requisições do cliente
@@ -115,9 +114,8 @@ class Server:
                     case "GET":
                         # Não faz nada, já que a partida é enviada no final do loop
                         pass
-                    case "PLAY":
-                        # TODO: Implementar
-                        pass
+                    case "JOIN":
+                        self.__match.add_player(client_id, data["nickname"])
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break
@@ -129,6 +127,3 @@ class Server:
 
         print(f"[Server] Client {client_id} disconnected")
         self.__remove_client(client_id)
-
-        if len(self.__clients) == 0:
-            self.__match.restart()
