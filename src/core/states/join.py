@@ -14,8 +14,8 @@ class Join(State):
     def __init__(self, client):
         super().__init__(client)
         self.__cards = [
-            pygame.transform.rotate(Resources.BACK_CARD, 15),
-            pygame.transform.rotate(Resources.WORLD_CARD, -15)
+            pygame.transform.rotate(Resources.CARD_BACK_RESIZED, 15),
+            pygame.transform.rotate(Resources.CARD_WORLD_RESIZED, -15)
         ]
 
     def init(self):

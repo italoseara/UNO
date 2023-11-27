@@ -181,7 +181,7 @@ class Engine:
                 pass
 
             pygame.display.flip()  # Update the display
-            dt = self._clock.tick(self._fps) / 1000.0  # Get the time since last frame
+            dt = self._clock.tick(self._fps) / 1000  # Update the delta time
 
     def init(self) -> None:
         """Initializes the game."""

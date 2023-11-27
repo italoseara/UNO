@@ -9,8 +9,9 @@ class Resources:
     LOGO = pygame.image.load("src/assets/images/logo.png")
     BACKGROUND = pygame.image.load("src/assets/images/background/credits.png")
     MENU_BACKGROUND = pygame.image.load("src/assets/images/background/menu.png")
-    WORLD_CARD = pygame.image.load("src/assets/images/world.png")
-    BACK_CARD = pygame.image.load("src/assets/images/back.png")
+    CARD_WORLD_RESIZED = pygame.image.load("src/assets/images/resized/world.png")
+    CARD_BACK_RESIZED = pygame.image.load("src/assets/images/resized/back.png")
+    CARD_BACK = pygame.image.load("src/assets/images/cards/back.png")
 
     @staticmethod
     def random_card() -> pygame.Surface:

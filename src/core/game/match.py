@@ -40,6 +40,11 @@ class Match:
                 return player
         return None
 
+    def get_number_of_players(self) -> int:
+        """Retorna o número de jogadores na partida"""
+
+        return len(self.__players)
+
     def start(self) -> None:
         """Inicia a partida"""
 
@@ -61,7 +66,7 @@ class Match:
 
         self.__players.append(Player(id=player_id, name=player_name))
 
-        if len(self.__players) == 2:
+        if len(self.__players) == 4:
             self.start()
 
     def remove_player(self, player_id: id) -> str | None:

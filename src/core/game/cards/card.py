@@ -31,7 +31,10 @@ class Card:
 
     @property
     def image(self) -> pygame.Surface:
-        return self._images_cache.setdefault(self._name, self.load_image())
+        if self._name not in self._images_cache:
+            self._images_cache[self._name] = self.load_image()
+
+        return self._images_cache[self._name]
 
     def load_image(self):
         img = pygame.image.load(self._image_path)
