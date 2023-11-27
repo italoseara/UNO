@@ -1,18 +1,17 @@
-from random import shuffle
-
-from .cards import *
 from .player import Player
+from .deck import Deck
+from .cards import Card
 
 
 class Match:
     __ready: bool
     __players: list[Player]
-    __deck: list[Card]
+    __deck: Deck | None
 
     def __init__(self):
         self.__ready = False
+        self.__deck = None
         self.__players = []
-        self.__deck = []
 
     @property
     def ready(self) -> bool:
@@ -23,10 +22,10 @@ class Match:
         return self.__players
 
     @property
-    def deck(self) -> list[Card]:
+    def deck(self) -> Deck:
         return self.__deck
 
-    def get_hand(self, player_id: id) -> list[Card] | None:
+    def get_player(self, player_id: id) -> Player | None:
         """Retorna a mão de um jogador
 
         Args:
@@ -38,31 +37,19 @@ class Match:
 
         for player in self.__players:
             if player.id == player_id:
-                return player.hand
+                return player
         return None
 
     def start(self) -> None:
         """Inicia a partida"""
 
         self.__ready = True
-        self.__deck = []
-        for color in [CardColor.RED, CardColor.GREEN, CardColor.BLUE, CardColor.YELLOW]:
-            for number in range(10):
-                for _ in range(2):
-                    self.__deck.append(NumberCard(color=color, value=str(number)))
+        self.__deck = Deck()
 
-            for _ in range(2):
-                self.__deck.append(DrawTwoCard(color=color))
-                self.__deck.append(SkipCard(color=color))
-                self.__deck.append(ReverseCard(color=color))
-
-        for _ in range(4):
-            self.__deck.append(WildCard())
-            self.__deck.append(WildDrawFourCard())
-
-        shuffle(self.__deck)
-
-        # TODO: Distribuir cartas
+        # Distribuir 7 cartas para cada jogador
+        for player in self.__players:
+            for _ in range(7):
+                player.add_card(self.__deck.draw_card())
 
     def add_player(self, player_id: id, player_name: str) -> None:
         """Adiciona um jogador à partida

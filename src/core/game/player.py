@@ -22,3 +22,12 @@ class Player:
     @property
     def hand(self) -> list[Card]:
         return self.__hand
+
+    def add_card(self, card: Card) -> None:
+        """Adiciona uma carta à mão do jogador
+
+        Args:
+            card (Card): Carta a ser adicionada
+        """
+
+        self.__hand.append(card)
