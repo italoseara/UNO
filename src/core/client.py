@@ -74,7 +74,7 @@ class Client(Engine):
         if self.__server is not None:
             self.__server.stop()
 
-        self.__server = Server("localhost", port)
+        self.__server = Server("0.0.0.0", port)
         self.__server_thread = threading.Thread(target=self.__server.start)
         self.__server_thread.start()
 
