@@ -32,7 +32,7 @@ class Party(State):
         self.__flipped_left = pygame.transform.rotate(self.__flipped_left, 90).convert()
 
         self.__flipped_right = pygame.transform.scale(Resources.CARD_BACK, size)
-        self.__flipped_right = pygame.transform.rotate(self.__flipped_left, -90).convert()
+        self.__flipped_right = pygame.transform.rotate(self.__flipped_right, -90).convert()
 
         self.__flipped_front = pygame.transform.scale(Resources.CARD_BACK, size).convert()
 
@@ -64,7 +64,9 @@ class Party(State):
             self.__exit_party()
             return
 
-        self.__match = network.send({"type": "GET"})
+        match = network.send({"type": "GET"})
+        if match is not None:
+            self.__match = match
 
     def __draw_own_hand(self, surface: pygame.Surface, player: Player):
         cx = self._client.width // 2
