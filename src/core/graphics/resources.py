@@ -22,10 +22,13 @@ class Resources:
         """
 
         files = os.listdir("src/assets/images/cards")
+        for folders in ["blue", "green", "red", "yellow", "wild"]:
+            files += [f"{folders}/{file}" for file in os.listdir(f"src/assets/images/cards/{folders}")]
+
         file = random.choice(files)
 
         # Load image with 500% scale
         image = pygame.image.load(f"src/assets/images/cards/{file}")
         image = pygame.transform.scale(image, (int(image.get_width() * 5), int(image.get_height() * 5)))
 
-        return image
+        return image.convert_alpha()
