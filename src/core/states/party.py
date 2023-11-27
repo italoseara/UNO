@@ -54,13 +54,13 @@ class Party(State):
 
         card_width = player.hand[0].image.get_width()  # Largura de uma carta
         max_width = 600  # Largura máxima que a mão pode ter em píxeis
-        max_space = 2  # Espaço máximo entre as cartas
+        max_space = -30  # Espaço máximo entre as cartas
 
         space = min(card_width + max_space, max_width // len(player.hand))  # Espaço entre as cartas
-        hand_width = len(player.hand) * space  # Largura da mão em píxeis
+        hand_width = (len(player.hand) - 1) * space + card_width  # Largura da mão em píxeis
 
         for i, card in enumerate(player.hand):
-            surface.blit(card.image, (cx - hand_width // 2 + i * space, 400))
+            surface.blit(card.image, (cx - hand_width // 2 + i * space, 430))
 
     def draw(self, surface: pygame.Surface):
         surface.blit(Resources.BACKGROUND, (0, 0))

@@ -7,7 +7,8 @@ from .cards import (
 
 
 class Deck:
-    """Classe que representa o baralho do jogo. Essencialmente, uma pilha de cartas."""
+    """Classe que representa o baralho do jogo. Essencialmente, uma fila de cartas,
+    pois as cartas são retiradas do topo e colocadas embaixo do baralho."""
 
     __cards: list[Card]
 
@@ -40,6 +41,6 @@ class Deck:
         return self.__cards.pop()
 
     def push(self, card: Card) -> None:
-        """Coloca uma carta no topo do baralho"""
+        """Coloca uma carta no fundo do baralho"""
 
-        self.__cards.append(card)
+        self.__cards.insert(0, card)

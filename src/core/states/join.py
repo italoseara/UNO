@@ -39,7 +39,7 @@ class Join(State):
         self._client.add_component(
             TextInput(cx, 290, 300, 50, font_size=30,
                       text_align="center", font_color="white", background_color="#a30f17",
-                      border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
+                      border_color="#8c0d13", border_width=3, border_radius=5, align="center", default="localhost"),
             id="ip")
 
         self._client.add_component(
@@ -48,7 +48,7 @@ class Join(State):
             TextInput(cx, 385, 300, 50, font_size=30,
                       max_length_input=5, numeric=True,
                       text_align="center", font_color="white", background_color="#a30f17",
-                      border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
+                      border_color="#8c0d13", border_width=3, border_radius=5, align="center", default="25565"),
             id="port")
 
         self._client.add_component(
@@ -83,6 +83,7 @@ class Join(State):
             return
 
         self._client.connect(ip, port)
+        pygame.time.wait(100)
 
         # Envia o nickname para o servidor e verifica se o servidor está cheio
         if not self._client.send({"type": "JOIN", "nickname": nickname}):
