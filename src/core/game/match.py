@@ -10,8 +10,8 @@ class Match:
 
     def __init__(self):
         self.__ready = False
-        self.__deck = None
         self.__players = []
+        self.__deck = Deck()
 
     @property
     def ready(self) -> bool:
@@ -49,12 +49,6 @@ class Match:
         """Inicia a partida"""
 
         self.__ready = True
-        self.__deck = Deck()
-
-        # Distribuir 7 cartas para cada jogador
-        for player in self.__players:
-            for _ in range(7):
-                player.add_card(self.__deck.draw_card())
 
     def add_player(self, player_id: id, player_name: str) -> None:
         """Adiciona um jogador à partida
@@ -63,10 +57,12 @@ class Match:
             player_id (int): ID do jogador
             player_name (str): Nome do jogador
         """
+        player = Player(id=player_id, name=player_name)
+        for _ in range(7):
+            player.add_card(self.__deck.draw_card())
+        self.__players.append(player)
 
-        self.__players.append(Player(id=player_id, name=player_name))
-
-        if len(self.__players) == 2:
+        if len(self.__players) == 4:
             self.start()
 
     def remove_player(self, player_id: id) -> str | None:
@@ -81,6 +77,8 @@ class Match:
 
         for player in self.__players:
             if player.id == player_id:
+                for card in player.hand:
+                    self.__deck.push(card)
                 self.__players.remove(player)
                 return player.name
         return None

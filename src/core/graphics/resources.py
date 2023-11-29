@@ -13,7 +13,7 @@ class Resources:
     CARD_BACK_RESIZED = pygame.image.load("src/assets/images/resized/back.png")
     CARD_BACK = pygame.image.load("src/assets/images/cards/back.png")
 
-    # Carrega todas as cartas do jogo previamente.
+    # Carrega todas as cartas do jogo previamente (para evitar carregamento durante a partida)
     CARDS = {
         "blue": {file: pygame.image.load(f"src/assets/images/cards/blue/{file}")
                  for file in os.listdir("src/assets/images/cards/blue")},

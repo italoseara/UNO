@@ -15,26 +15,24 @@ class Party(State):
     __id: int
 
     # Imagens salvas para não ter que ficar redimensionando toda hora
-    __flipped_left: pygame.Surface
-    __flipped_right: pygame.Surface
-    __flipped_front: pygame.Surface
+    __flipped_cards: dict[str, pygame.Surface]
 
     def __init__(self, client):
         super().__init__(client)
         self.__match = None
         self.__id = -1
 
+        # Redimensionar e rotacionar as cartas
         card_width = int(Resources.CARD_BACK.get_width() * 3.5)
         card_height = int(Resources.CARD_BACK.get_height() * 3.5)
         size = (card_width, card_height)
 
-        self.__flipped_left = pygame.transform.scale(Resources.CARD_BACK, size)
-        self.__flipped_left = pygame.transform.rotate(self.__flipped_left, 90).convert()
-
-        self.__flipped_right = pygame.transform.scale(Resources.CARD_BACK, size)
-        self.__flipped_right = pygame.transform.rotate(self.__flipped_right, -90).convert()
-
-        self.__flipped_front = pygame.transform.scale(Resources.CARD_BACK, size).convert()
+        self.__flipped_cards = {
+            "left": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 90).convert(),
+            "right": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), -90).convert(),
+            "top": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 180).convert(),
+            "bottom": pygame.transform.scale(Resources.CARD_BACK, size).convert(),
+        }
 
     def init(self):
         cx = self._client.width // 2
@@ -68,101 +66,81 @@ class Party(State):
         if match is not None:
             self.__match = match
 
-    def __draw_own_hand(self, surface: pygame.Surface, player: Player):
-        cx = self._client.width // 2
+    def __draw_hand(self, surface: pygame.Surface, player: Player, position: str):
+        def get_vpos(hd: int, j: int) -> int:
+            return y - hd // 2 + j * space
 
-        card_width = player.hand[0].image.get_width()  # Largura de uma carta
-        max_width = 600  # Largura máxima que a mão pode ter em píxeis
-        max_space = -30  # Espaço máximo entre as cartas
+        def get_hpos(hd: int, j: int) -> int:
+            return x - hd // 2 + j * space
 
-        space = min(card_width + max_space, max_width // len(player.hand))  # Espaço entre as cartas
-        hand_width = (len(player.hand) - 1) * space + card_width  # Largura da mão em píxeis
+        flipped_card = self.__flipped_cards[position]
+        card_dimension = flipped_card.get_width()\
+            if position in ("top", "bottom")\
+            else flipped_card.get_height()
+
+        # Define a posição das cartas na tela
+        match position:
+            case "left":
+                x = 20
+                y = self._client.height // 2
+            case "right":
+                x = self._client.width - 20 - flipped_card.get_width()
+                y = self._client.height // 2
+            case "top":
+                x = self._client.width // 2
+                y = 20
+            case "bottom":  # Propria mão
+                x = self._client.width // 2
+                y = self._client.height - 20 - flipped_card.get_height()
+            case _:
+                return
+
+        max_space = -30
+        max_dimension = 600 if position in ("top", "bottom") else 400
+
+        space = min(card_dimension + max_space, max_dimension // len(player.hand))
+        hand_dimension = (len(player.hand) - 1) * space + card_dimension
 
         for i, card in enumerate(player.hand):
-            surface.blit(card.image, (
-                cx - hand_width // 2 + i * space,
-                self._client.height - 20 - card.image.get_height()))
+            if position == "top":
+                surface.blit(flipped_card, (get_hpos(hand_dimension, i), y))
+            elif position == "bottom":
+                # Desenha a carta virada para cima apenas se a partida já começou
+                card_image = card.image if self.__match.ready else flipped_card
+                surface.blit(card_image, (get_hpos(hand_dimension, i), y))
+            else:
+                surface.blit(flipped_card, (x, get_vpos(hand_dimension, i)))
 
-    def __draw_other_hand(self, surface: pygame.Surface):
+    def __draw_cards(self, surface: pygame.Surface):
         players_len = self.__match.get_number_of_players()
 
-        # Pega os IDs dos jogadores ao redor do jogador atual
-        left_id = None
-        right_id = None
-        front_id = None
+        offsets = {
+            2: ["top"],
+            3: ["left", "right"],
+            4: ["left", "right", "top"]
+        }
 
-        if players_len == 4:
-            left_id = (self.__id + 1) % players_len
-            right_id = (self.__id - 1) % players_len
-            front_id = (self.__id + 2) % players_len
-        elif players_len == 3:
-            left_id = (self.__id + 1) % players_len
-            right_id = (self.__id - 1) % players_len
-        elif players_len == 2:
-            front_id = (self.__id + 1) % players_len
+        positions = offsets.get(players_len, [])
 
-        if left_id is not None:
-            player = self.__match.get_player(left_id)
-            if player is not None and player.hand:
-                self.__draw_left_hand(surface, player)
+        for position in positions:
+            player_id = (self.__id + 1) % players_len if position == "left" else \
+                (self.__id - 1) % players_len if position == "right" else \
+                (self.__id + 2) % players_len if position == "top" else None
 
-        if right_id is not None:
-            player = self.__match.get_player(right_id)
-            if player is not None and player.hand:
-                self.__draw_right_hand(surface, player)
+            if player_id is not None:
+                player = self.__match.get_player(player_id)
+                if player is not None and player.hand:
+                    self.__draw_hand(surface, player, position)
 
-        if front_id is not None:
-            player = self.__match.get_player(front_id)
-            if player is not None and player.hand:
-                self.__draw_front_hand(surface, player)
-
-    def __draw_left_hand(self, surface: pygame.Surface, player: Player):
-        cy = self._client.height // 2
-
-        card_height = self.__flipped_left.get_height()  # Altura de uma carta
-        max_height = 400  # Altura máxima que a mão pode ter em píxeis
-        max_space = -30  # Espaço máximo entre as cartas
-
-        space = min(card_height + max_space, max_height // len(player.hand))  # Espaço entre as cartas
-        hand_height = (len(player.hand) - 1) * space + card_height  # Altura da mão em píxeis
-
-        for i, card in enumerate(player.hand):
-            surface.blit(self.__flipped_left, (20, cy - hand_height // 2 + i * space))
-
-    def __draw_right_hand(self, surface: pygame.Surface, player: Player):
-        cy = self._client.height // 2
-
-        card_height = self.__flipped_right.get_height()
-        card_width = self.__flipped_right.get_width()
-        max_height = 400
-        max_space = -30
-
-        space = min(card_height + max_space, max_height // len(player.hand))
-        hand_height = (len(player.hand) - 1) * space + card_height
-
-        for i, card in enumerate(player.hand):
-            surface.blit(self.__flipped_right, (self._client.width - 20 - card_width, cy - hand_height // 2 + i * space))
-
-    def __draw_front_hand(self, surface: pygame.Surface, player: Player):
-        cx = self._client.width // 2
-
-        card_width = self.__flipped_front.get_width()
-        max_width = 600
-        max_space = -30
-
-        space = min(card_width + max_space, max_width // len(player.hand))
-        hand_width = (len(player.hand) - 1) * space + card_width
-
-        for i, card in enumerate(player.hand):
-            surface.blit(self.__flipped_front, (cx - hand_width // 2 + i * space, 20))
+        player = self.__match.get_player(self.__id)
+        if player.hand:
+            # TODO: Tornar as cartas interativas
+            self.__draw_hand(surface, player, "bottom")
 
     def draw(self, surface: pygame.Surface):
         surface.blit(Resources.BACKGROUND, (0, 0))
 
-        if self.__match is None or not self.__match.ready:
+        if self.__match is None:
             return
 
-        player = self.__match.get_player(self.__id)
-        if player.hand:
-            self.__draw_own_hand(surface, player)
-        self.__draw_other_hand(surface)
+        self.__draw_cards(surface)
