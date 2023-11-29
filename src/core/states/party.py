@@ -1,6 +1,6 @@
 import pygame
 
-from assets.components import Text, Button
+from assets.components import WarningText
 from core.game.match import Match
 from core.game.player import Player
 from core.graphics import Resources
@@ -11,11 +11,12 @@ from .state import State
 
 
 class Party(State):
-    __match: Match | None
     __id: int
+    __match: Match | None
 
-    # Imagens salvas para não ter que ficar redimensionando toda hora
+    # Salvando objetos do pygame para não precisar carregar toda hora
     __flipped_cards: dict[str, pygame.Surface]
+    __font: pygame.font.Font
 
     def __init__(self, client):
         super().__init__(client)
@@ -28,29 +29,31 @@ class Party(State):
         size = (card_width, card_height)
 
         self.__flipped_cards = {
-            "left": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 90).convert(),
-            "right": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), -90).convert(),
+            "left": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), -90).convert(),
+            "right": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 90).convert(),
             "top": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 180).convert(),
             "bottom": pygame.transform.scale(Resources.CARD_BACK, size).convert(),
         }
 
+        self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
+
     def init(self):
-        cx = self._client.width // 2
-        cy = self._client.height // 2
-
-        self._client.add_component(
-            Text("Party", cx, cy, font_color="black", font_size=72, align="center"))
-
-        self._client.add_component(
-            Button("< Back", 10, 560, height=30, font_size=32, on_click=self.__exit_party))
+        pass
 
     def __exit_party(self, *_):
         self._client.disconnect()
         self._client.close_server()
+        self._client.add_component(
+            WarningText("You left the party", self._client.width // 2, 550,
+                        font_size=30, align="center"))
         self._client.state = Menu(self._client)
 
     def update(self, dt: float):
-        pass
+        if self.__match is None:
+            return
+
+        if self.__match.stopped:
+            self.__exit_party()
 
     def update_server(self, network: Network):
         if network is None:
@@ -102,14 +105,30 @@ class Party(State):
         hand_dimension = (len(player.hand) - 1) * space + card_dimension
 
         for i, card in enumerate(player.hand):
-            if position == "top":
-                surface.blit(flipped_card, (get_hpos(hand_dimension, i), y))
-            elif position == "bottom":
-                # Desenha a carta virada para cima apenas se a partida já começou
-                card_image = card.image if self.__match.ready else flipped_card
-                surface.blit(card_image, (get_hpos(hand_dimension, i), y))
-            else:
-                surface.blit(flipped_card, (x, get_vpos(hand_dimension, i)))
+            match position:
+                case "top":
+                    surface.blit(flipped_card, (get_hpos(hand_dimension, i), y))
+                case "bottom":
+                    card_image = card.image if self.__match.ready else flipped_card
+                    surface.blit(card_image, (get_hpos(hand_dimension, i), y))
+                case "left" | "right":
+                    surface.blit(flipped_card, (x, get_vpos(hand_dimension, i)))
+
+        name = f"{player.name} (You)" if position == "bottom" else player.name
+        color = "yellow" if player.id == 0 else "white"
+
+        text = self.__font.render(name, True, color)
+        rect = text.get_rect()
+
+        match position:
+            case "top":
+                rect.midtop = (x, y + flipped_card.get_height() + 5)
+            case "bottom":
+                rect.midbottom = (x, y - 5)
+            case "left" | "right":
+                rect.midbottom = (x + flipped_card.get_width() // 2, y - hand_dimension // 2 - 5)
+
+        surface.blit(text, rect)
 
     def __draw_cards(self, surface: pygame.Surface):
         players_len = self.__match.get_number_of_players()
@@ -123,7 +142,7 @@ class Party(State):
         positions = offsets.get(players_len, [])
 
         for position in positions:
-            player_id = (self.__id + 1) % players_len if position == "left" else \
+            player_id = (self.__id + 1) % players_len if position == "left" or players_len == 2 else \
                 (self.__id - 1) % players_len if position == "right" else \
                 (self.__id + 2) % players_len if position == "top" else None
 

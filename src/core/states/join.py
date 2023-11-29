@@ -29,7 +29,7 @@ class Join(State):
             Text("Nickname:", cx, 150, font_size=35, align="center"))
         self._client.add_component(
             TextInput(cx, 195, 300, 50, font_size=30,
-                      max_length_input=16,
+                      max_length_input=10,
                       text_align="center", font_color="white", background_color="#a30f17",
                       border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
             id="nickname")
@@ -97,7 +97,7 @@ class Join(State):
 
     @staticmethod
     def __check_nickname(nickname: str) -> bool:
-        return 3 <= len(nickname) <= 16
+        return 3 <= len(nickname) <= 10
 
     @staticmethod
     def __check_ip(ip: str) -> bool:

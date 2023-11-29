@@ -53,7 +53,6 @@ class Server:
                     self.__remove_client(len(self.__clients) - 1)
                     print("[Server] Match already started")
                     continue
-
             except KeyboardInterrupt:
                 self.stop()
             except OSError:  # Timeout
@@ -92,6 +91,9 @@ class Server:
 
         client = self.__clients.pop(client_id)
         client.close()
+
+        if client_id == 0:
+            self.__match.stop()
 
         nickname = self.__match.remove_player(client_id)
         if nickname is not None:

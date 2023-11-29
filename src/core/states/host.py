@@ -29,7 +29,7 @@ class Host(State):
             Text("Nickname:", cx, 215, font_size=35, align="center"))
         self._client.add_component(
             TextInput(cx, 260, 300, 50, font_size=30,
-                      max_length_input=16,
+                      max_length_input=10,
                       text_align="center", font_color="white", background_color="#a30f17",
                       border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
             id="nickname")
@@ -76,7 +76,7 @@ class Host(State):
 
     @staticmethod
     def __validate_nickname(nickname: str) -> bool:
-        return 3 <= len(nickname) <= 16
+        return 3 <= len(nickname) <= 10
 
     def update_server(self, network: Network):
         pass

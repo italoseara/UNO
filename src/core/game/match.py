@@ -5,17 +5,23 @@ from .cards import Card
 
 class Match:
     __ready: bool
-    __players: list[Player]
+    __stopped: bool
     __deck: Deck | None
+    __players: list[Player]
 
     def __init__(self):
         self.__ready = False
+        self.__stopped = False
         self.__players = []
         self.__deck = Deck()
 
     @property
     def ready(self) -> bool:
         return self.__ready
+
+    @property
+    def stopped(self) -> bool:
+        return self.__stopped
 
     @property
     def players(self) -> list[Player]:
@@ -50,6 +56,11 @@ class Match:
 
         self.__ready = True
 
+    def stop(self):
+        """Para a partida"""
+
+        self.__stopped = True
+
     def add_player(self, player_id: id, player_name: str) -> None:
         """Adiciona um jogador à partida
 
@@ -58,6 +69,8 @@ class Match:
             player_name (str): Nome do jogador
         """
         player = Player(id=player_id, name=player_name)
+
+        # Distribui 7 cartas para cada jogador
         for _ in range(7):
             player.add_card(self.__deck.draw_card())
         self.__players.append(player)
