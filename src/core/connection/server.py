@@ -92,9 +92,6 @@ class Server:
         client = self.__clients.pop(client_id)
         client.close()
 
-        if client_id == 0:
-            self.__match.stop()
-
         nickname = self.__match.remove_player(client_id)
         if nickname is not None:
             print(f"[Server] {nickname} left the match")

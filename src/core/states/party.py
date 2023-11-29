@@ -1,8 +1,8 @@
 import pygame
 
-from assets.components import WarningText
-from core.game.match import Match
+from assets.components import WarningText, Button
 from core.game.player import Player
+from core.game.match import Match
 from core.graphics import Resources
 from core.connection import Network
 
@@ -38,22 +38,29 @@ class Party(State):
         self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
 
     def init(self):
-        pass
+        self._client.add_component(
+            Button("x", self._client.width - 20, 20, font_size=30, align="center",
+                   width=30, height=30, animation=None, on_click=self.__exit_party))
 
     def __exit_party(self, *_):
         self._client.disconnect()
         self._client.close_server()
-        self._client.add_component(
-            WarningText("You left the party", self._client.width // 2, 550,
-                        font_size=30, align="center"))
         self._client.state = Menu(self._client)
+
+        if not self._client.get_component("left"):
+            self._client.add_component(
+                WarningText("You left the party", self._client.width // 2, 550,
+                            font_size=30, align="center"), id="left")
 
     def update(self, dt: float):
         if self.__match is None:
             return
 
-        if self.__match.stopped:
+        if not self.__match.host_online:
             self.__exit_party()
+            self._client.add_component(
+                WarningText("Host left the party", self._client.width // 2, 550,
+                            font_size=30, align="center"), id="left")
 
     def update_server(self, network: Network):
         if network is None:

@@ -5,13 +5,11 @@ from .cards import Card
 
 class Match:
     __ready: bool
-    __stopped: bool
     __deck: Deck | None
     __players: list[Player]
 
     def __init__(self):
         self.__ready = False
-        self.__stopped = False
         self.__players = []
         self.__deck = Deck()
 
@@ -20,8 +18,8 @@ class Match:
         return self.__ready
 
     @property
-    def stopped(self) -> bool:
-        return self.__stopped
+    def host_online(self) -> bool:
+        return 0 in [player.id for player in self.players]
 
     @property
     def players(self) -> list[Player]:
@@ -55,11 +53,6 @@ class Match:
         """Inicia a partida"""
 
         self.__ready = True
-
-    def stop(self):
-        """Para a partida"""
-
-        self.__stopped = True
 
     def add_player(self, player_id: id, player_name: str) -> None:
         """Adiciona um jogador à partida

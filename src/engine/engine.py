@@ -144,7 +144,12 @@ class Engine:
     def clear_components(self) -> None:
         """Remove todos os componentes da tela."""
 
-        self.__components = {key: comp for key, comp in self.__components.items() if type(comp) == WarningText}
+        # Filtrar para que apenas warnings não sejam removidos
+        temp = self.__components.copy()
+        self.__components.clear()
+        for key, comp in temp.items():
+            if isinstance(comp, WarningText):
+                self.__components[key] = comp
 
     def pop_component(self, id: str | None) -> Component | None:
         """Remove um componente da tela.
