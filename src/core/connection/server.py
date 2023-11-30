@@ -110,8 +110,10 @@ class Server:
                         pass
                     case "JOIN":
                         if self.__match.is_full():
-                            print(f"[Server] {data['nickname']} tried joining the match")
                             client.send(pickle.dumps("full"))
+                            break  # Sai do loop
+                        if data["nickname"].lower() in [player.name.lower() for player in self.__match.players]:
+                            client.send(pickle.dumps("nickname"))
                             break  # Sai do loop
 
                         print(f"[Server] {data['nickname']} joined the match")

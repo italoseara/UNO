@@ -100,6 +100,14 @@ class Join(State):
                             font_size=30, align="center"))
             return
 
+        # Se o nickname já estiver em uso, mostra um aviso
+        if result == "nickname":
+            self._client.disconnect()
+            self._client.add_component(
+                WarningText("Nickname already in use", self._client.width // 2, 550,
+                            font_size=30, align="center"))
+            return
+
         # Se o servidor não estiver respondendo, mostra um aviso
         if result is None:
             self._client.disconnect()
