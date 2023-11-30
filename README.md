@@ -11,10 +11,11 @@ This is a Python implementation of the card game UNO. It is a work in progress.
 
 ## Run
 
-To play the game, run the following command:
+To play the game, run the following commands:
 
 ```bash
-python3 src/main.py
+cd src
+python3 main.py
 ```
 
 ## Authors

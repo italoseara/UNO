@@ -1,6 +1,5 @@
 import pygame
 
-from core.client import Client
 from core.graphics import Resources
 from core.connection import Network
 from assets.components import Text, Button, TextInput, WarningText
@@ -10,14 +9,13 @@ from .state import State
 
 
 class Join(State):
-    _client: Client
     __cards: list[pygame.Surface]
 
     def __init__(self, client):
         super().__init__(client)
         self.__cards = [
-            pygame.transform.rotate(Resources.BACK_CARD, 15),
-            pygame.transform.rotate(Resources.WORLD_CARD, -15)
+            pygame.transform.rotate(Resources.CARD_BACK_RESIZED, 15),
+            pygame.transform.rotate(Resources.CARD_WORLD_RESIZED, -15)
         ]
 
     def init(self):
@@ -31,7 +29,7 @@ class Join(State):
             Text("Nickname:", cx, 150, font_size=35, align="center"))
         self._client.add_component(
             TextInput(cx, 195, 300, 50, font_size=30,
-                      max_length_input=16,
+                      max_length_input=10,
                       text_align="center", font_color="white", background_color="#a30f17",
                       border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
             id="nickname")
@@ -41,7 +39,7 @@ class Join(State):
         self._client.add_component(
             TextInput(cx, 290, 300, 50, font_size=30,
                       text_align="center", font_color="white", background_color="#a30f17",
-                      border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
+                      border_color="#8c0d13", border_width=3, border_radius=5, align="center", default="localhost"),
             id="ip")
 
         self._client.add_component(
@@ -50,7 +48,7 @@ class Join(State):
             TextInput(cx, 385, 300, 50, font_size=30,
                       max_length_input=5, numeric=True,
                       text_align="center", font_color="white", background_color="#a30f17",
-                      border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
+                      border_color="#8c0d13", border_width=3, border_radius=5, align="center", default="25565"),
             id="port")
 
         self._client.add_component(
@@ -78,18 +76,43 @@ class Join(State):
                             font_size=30, align="center"))
             return
 
-        if not Network.check_port(ip, port):
+        if not Network.server_running(ip, port):
             self._client.add_component(
                 WarningText("Server not found", self._client.width // 2, 550,
                             font_size=30, align="center"))
             return
 
-        self._client.connect("localhost", port)
+        self._client.connect(ip, port)
+        pygame.time.wait(100)
+
+        # Tenta se conectar ao servidor 10 vezes
+        result = None
+        for _ in range(10):
+            result = self._client.send({"type": "JOIN", "nickname": nickname})
+            if result is not None:
+                break
+
+        # Se o servidor estiver cheio, mostra um aviso
+        if result == "full":
+            self._client.disconnect()
+            self._client.add_component(
+                WarningText("Match is full", self._client.width // 2, 550,
+                            font_size=30, align="center"))
+            return
+
+        # Se o servidor não estiver respondendo, mostra um aviso
+        if result is None:
+            self._client.disconnect()
+            self._client.add_component(
+                WarningText("Server not responding", self._client.width // 2, 550,
+                            font_size=30, align="center"))
+            return
+
         self._client.state = Party(self._client)
 
     @staticmethod
     def __check_nickname(nickname: str) -> bool:
-        return 3 < len(nickname) <= 16
+        return 3 <= len(nickname) <= 10
 
     @staticmethod
     def __check_ip(ip: str) -> bool:

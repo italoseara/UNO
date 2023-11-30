@@ -2,7 +2,7 @@ import socket
 import pickle
 
 from typing import Any
-from core.match import Match
+from core.game.match import Match
 
 
 class Network:
@@ -31,32 +31,56 @@ class Network:
         return self.__id
 
     @staticmethod
-    def check_port(ip: str, port: int) -> bool:
+    def server_running(ip: str, port: int) -> bool:
+        """Verifica se o servidor está online"""
+
         if port < 1 or port > 65535:
             return False
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = sock.connect_ex((ip, port))
-        sock.close()
-        return result != 0
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((ip, port))
+            return True
+        except socket.error:
+            return False
+
+    @staticmethod
+    def port_in_use(port: int) -> bool:
+        """Verifica se a porta está em uso"""
+
+        if port < 1 or port > 65535:
+            return False
+
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(("localhost", port))
+            return False
+        except socket.error:
+            return True
 
     def connect(self) -> int:
         """Conecta o cliente ao servidor"""
 
         self.__client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__client.connect((self.__host, self.__port))
+        self.__client.settimeout(0.2)  # Evita que o cliente fique preso no recv
         self.__running = True
 
-        print(f"Connected to {self.__host}:{self.__port}")
-        return int(self.__client.recv(2048).decode())
+        print(f"[Network] Connected to {self.__host}:{self.__port}")
+        while True:
+            try:
+                return int(self.__client.recv(1024).decode())
+            except socket.error:
+                pass
 
     def disconnect(self):
         """Desconecta o cliente do servidor"""
 
-        print("Disconnecting client...")
+        print("[Network] Disconnecting client...")
         self.__running = False
         self.__client.close()
 
-    def send(self, data: dict[str, Any]) -> Match:
+    def send(self, data: dict[str, Any]) -> Match | None:
         """Envia dados para o servidor
 
         Args:
@@ -67,13 +91,19 @@ class Network:
 
         Examples:
             >>> network = Network("localhost", 5555)
-            >>> network.send({"id": 1, "type": "GET"})
+            >>> network.send({"type": "GET"})
             Match(...)
         """
 
         if self.__running:
+            data["id"] = self.__id
+
             try:
                 self.__client.send(pickle.dumps(data))  # Envia dados para o servidor
-                return pickle.loads(self.__client.recv(4096))  # Retorna a partida
+                return pickle.loads(self.__client.recv(10240))  # Retorna a partida (10kb)
             except socket.error as e:
-                print(e)
+                print(f"[Network] Error: {e}")
+            except pickle.UnpicklingError:
+                return None
+            except EOFError:
+                return None

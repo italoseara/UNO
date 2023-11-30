@@ -1,10 +1,9 @@
-import sys
 import socket
 import pickle
 import threading
 from typing import Any
 
-from core.match import Match
+from core.game.match import Match
 
 
 class Server:
@@ -47,14 +46,6 @@ class Server:
         while self.__running:
             try:
                 client, address = self.__server.accept()
-                if self.__match.ready:
-                    client.close()
-                    continue
-
-                if len(self.__clients) == 4:
-                    self.__match.ready = True
-
-                print(f"[Server] Client connected from {address[0]}:{address[1]}")
                 self.__add_client(client)
             except KeyboardInterrupt:
                 self.stop()
@@ -95,6 +86,10 @@ class Server:
         client = self.__clients.pop(client_id)
         client.close()
 
+        nickname = self.__match.remove_player(client_id)
+        if nickname is not None:
+            print(f"[Server] {nickname} left the match")
+
     def __handle_client(self, client: socket.socket, client_id: int) -> None:
         """Lida com as requisições do cliente
 
@@ -108,24 +103,28 @@ class Server:
         while client_id in self.__clients.keys():
             try:
                 data: dict[str, Any] = pickle.loads(client.recv(1024))
-                match data["type"]:
+
+                match data["type"].upper():
                     case "GET":
                         # Não faz nada, já que a partida é enviada no final do loop
                         pass
-                    case "PLAY":
-                        # TODO: Implementar
-                        pass
+                    case "JOIN":
+                        if self.__match.is_full():
+                            print(f"[Server] {data['nickname']} tried joining the match")
+                            client.send(pickle.dumps("full"))
+                            break  # Sai do loop
+
+                        print(f"[Server] {data['nickname']} joined the match")
+                        self.__match.add_player(client_id, data["nickname"])
+                    case "START":
+                        if client_id == 0:  # Apenas o host pode iniciar a partida
+                            self.__match.start()
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break
 
                 client.send(pickle.dumps(self.__match))  # Envia a partida atualizada para o cliente
-            except Exception as e:
-                print(e)
+            except Exception:
                 break
 
-        print(f"[Server] Client {client_id} disconnected")
         self.__remove_client(client_id)
-
-        if len(self.__clients) == 0:
-            self.__match.restart()

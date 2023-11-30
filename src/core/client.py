@@ -1,9 +1,11 @@
 import threading
+from typing import Any
 
 import pygame
 
-from core.connection import Network, Server
+from core.game import Match
 from core.states import State, Menu
+from core.connection import Network, Server
 from engine import Engine, on_event
 
 
@@ -42,6 +44,10 @@ class Client(Engine):
         self.__state = state
         self.__state.init()
 
+    @property
+    def network(self) -> Network | None:
+        return self.__network
+
     @on_event(pygame.QUIT)
     def on_quit(self, _) -> None:
         """Evento de saída do jogo."""
@@ -49,10 +55,18 @@ class Client(Engine):
         self.disconnect()
         self.close_server()
 
-    def pop_state(self, *args, **kwargs) -> None:
+    def pop_state(self, *_, **__) -> None:
         """Retorna ao estado anterior."""
 
         self.state = self.__last_state
+
+    def send(self, data: dict[str, Any]) -> Match | None:
+        """Envia dados para o servidor."""
+
+        if self.__network is not None:
+            return self.__network.send(data)
+
+        print("[Client] Not connected to a server")
 
     def connect(self, ip: str, port: int) -> None:
         """Conecta ao servidor."""
@@ -66,7 +80,7 @@ class Client(Engine):
         if self.__server is not None:
             self.__server.stop()
 
-        self.__server = Server("localhost", port)
+        self.__server = Server("0.0.0.0", port)
         self.__server_thread = threading.Thread(target=self.__server.start)
         self.__server_thread.start()
 

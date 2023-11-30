@@ -1,6 +1,5 @@
 import pygame
 
-from core.client import Client
 from core.graphics import Resources
 from core.connection import Network
 from assets.components import Text, Button, TextInput, WarningText
@@ -10,14 +9,13 @@ from .state import State
 
 
 class Host(State):
-    _client: Client
     __cards: list[pygame.Surface]
 
     def __init__(self, client):
         super().__init__(client)
         self.__cards = [
-            pygame.transform.rotate(Resources.WORLD_CARD, 15),
-            pygame.transform.rotate(Resources.BACK_CARD, -15)
+            pygame.transform.rotate(Resources.CARD_WORLD_RESIZED, 15),
+            pygame.transform.rotate(Resources.CARD_BACK_RESIZED, -15)
         ]
 
     def init(self):
@@ -31,7 +29,7 @@ class Host(State):
             Text("Nickname:", cx, 215, font_size=35, align="center"))
         self._client.add_component(
             TextInput(cx, 260, 300, 50, font_size=30,
-                      max_length_input=16,
+                      max_length_input=10,
                       text_align="center", font_color="white", background_color="#a30f17",
                       border_color="#8c0d13", border_width=3, border_radius=5, align="center"),
             id="nickname")
@@ -53,7 +51,7 @@ class Host(State):
         self._client.add_component(
             Button("< Back", 10, 560, height=30, font_size=32, on_click=self._client.pop_state))
 
-    def __host_server(self, button: Button):
+    def __host_server(self, _):
         nickname = self._client.get_component("nickname").text.strip()
         port = self._client.get_component("port").text
 
@@ -63,7 +61,7 @@ class Host(State):
                             font_size=30, align="center"))
             return
 
-        if not Network.check_port("localhost", port):
+        if Network.port_in_use(port):
             self._client.add_component(
                 WarningText("Port is already in use", self._client.width // 2, 550,
                             font_size=30, align="center"))
@@ -72,12 +70,13 @@ class Host(State):
         self._client.host_server(port)
         pygame.time.wait(500)  # Espera o servidor iniciar
         self._client.connect("localhost", port)
+        self._client.send({"type": "JOIN", "nickname": nickname})  # Envia o nickname para o servidor
 
         self._client.state = Party(self._client)
 
     @staticmethod
     def __validate_nickname(nickname: str) -> bool:
-        return 3 < len(nickname) <= 16
+        return 3 <= len(nickname) <= 10
 
     def update_server(self, network: Network):
         pass

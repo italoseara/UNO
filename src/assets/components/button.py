@@ -20,7 +20,7 @@ class Button(Component):
                  border_radius: int = 0,
                  border_width: int = 0,
                  border_color: tuple[int, int, int] | str = "black",
-                 animation: str = "right",
+                 animation: str | None = "right",
                  on_click: callable = None):
         # Texto
         self.__text = text

@@ -7,7 +7,9 @@ class State:
     """Classe base para os estados do jogo."""
 
     def __init__(self, client):
-        self._client = client
+        from core.client import Client
+
+        self._client: Client = client
 
     def init(self):
         """Inicializa o estado. Pode ser chamado várias vezes a fim de reiniciar o estado."""

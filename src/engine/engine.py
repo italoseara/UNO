@@ -54,7 +54,7 @@ class Engine:
 
         pygame.init()
 
-        if not pygame.font.get_init():  # A fonte já e inicializada no comando acima, mas caso n seja, inicializa
+        if not pygame.font.get_init():  # A fonte já e inicializada no comando acima, mas caso não seja, inicializa
             pygame.font.init()
 
         pygame.display.set_caption(caption)
@@ -64,7 +64,7 @@ class Engine:
         self.__is_running = True
         self.__components = {}
 
-        # Server needs to be in a separate thread, so it doesn't block the main thread
+        # O servidor precisa estar em uma thread separada, para não bloquear a thread principal
         self.__server_thread = threading.Thread(target=self.__handle_server)
 
     @property
@@ -77,11 +77,11 @@ class Engine:
 
     @staticmethod
     def add_event(type_: int, callback: callable) -> None:
-        """Adds an event callback.
+        """Adiciona um callback de eventos.
 
         Args:
-            type_ (int): The type of the event.
-            callback (callable): The callback.
+            type_ (int): O tipo do evento.
+            callback (callable): O callback.
         """
 
         if type_ not in Engine.__events.keys():
@@ -90,16 +90,16 @@ class Engine:
         Engine.__events[type_].append(callback)
 
     def __handle_events(self) -> None:
-        """Handles events."""
+        """Lida com eventos."""
 
         for event in pygame.event.get():
-            # User closed the window
+            # Usuario fechou a janela
             if event.type == pygame.QUIT:
                 self.__is_running = False
 
             if event.type == pygame.KEYDOWN:
                 try:
-                    for comp in self.__components.values():  # Draw The components
+                    for comp in self.__components.values():  # Desenha os componentes
                         comp.on_keydown(event)
                 except RuntimeError:
                     pass
@@ -109,9 +109,9 @@ class Engine:
                     callback(self, event)
 
     def __handle_server(self) -> None:
-        """Handles the server."""
+        """Lida com o servidor."""
 
-        ups = 20  # Limits the server to 20 updates per second
+        ups = 20  # Limita o servidor a 20 tps
 
         last = pygame.time.get_ticks()
         while self.__is_running:
@@ -120,81 +120,86 @@ class Engine:
                 last = pygame.time.get_ticks()
 
     def add_component(self, component: Component, id: str = None) -> None:
-        """Adds a component to the screen.
+        """Adiciona um componente à tela
 
         Args:
-            id (str, optional): The id of the component. Defaults to None.
-            component (Component): The component to add.
+            id (str, optional): O id do componente. None por padrão
+            component (Component): O componente a ser adicionado.
         """
 
         self.__components[id or str(len(self.__components))] = component
 
     def get_component(self, id: str) -> Component | None:
-        """Gets a component from the screen.
+        """Pega um componente da tela.
 
         Args:
-            id (str): The id of the component.
+            id (str): id do componente.
 
         Returns:
-            Component | None: The component, if found.
+            Component | None: O componente, se encontrado
         """
 
         return self.__components.get(id, None)
 
     def clear_components(self) -> None:
-        """Clears all components from the screen."""
+        """Remove todos os componentes da tela."""
 
+        # Filtrar para que apenas warnings não sejam removidos
+        temp = self.__components.copy()
         self.__components.clear()
+        for key, comp in temp.items():
+            if isinstance(comp, WarningText):
+                self.__components[key] = comp
 
     def pop_component(self, id: str | None) -> Component | None:
-        """Clears a component from the screen.
+        """Remove um componente da tela.
 
         Args:
-            id (str): The id of the component.
+            id (str): id do componente.
         """
 
         return self.__components.pop(id, None)
 
     def run(self) -> None:
-        """Runs the game loop."""
+        """Roda o jogo."""
 
         dt = 0
-        self.init()  # Initialize the game
-        self.__server_thread.start()  # Start the server thread
+        self.init()  # Inicializa o jogo
+        self.__server_thread.start()  # Inicia a thread do servidor
         while self.__is_running:
-            self.__handle_events()  # Handle events
+            self.__handle_events()  # Lida com eventos
 
-            self.update(dt)  # Update the game state
+            self.update(dt)  # Atualiza o jogo
             try:
-                for key, comp in self.__components.items():  # Update The components
+                for key, comp in self.__components.items():  # Atualiza os componentes
                     comp.update(dt)
                     if isinstance(comp, WarningText) and comp.is_expired:
-                        self.pop_component(key)  # Remove the component if it's expired
+                        self.pop_component(key)  # Remove o componente caso tenha expirado
             except RuntimeError:
                 pass
 
-            self.draw()  # Draw the game
+            self.draw()  # Desenha o jogo
             try:
-                for comp in self.__components.values():  # Draw The components
+                for comp in self.__components.values():  # Desenha os componentes
                     comp.draw(self._surface)
             except RuntimeError:
                 pass
 
-            pygame.display.flip()  # Update the display
-            dt = self._clock.tick(self._fps) / 1000.0  # Get the time since last frame
+            pygame.display.flip()  # Atualiza a tela
+            dt = self._clock.tick(self._fps) / 1000  # Atualiza o delta time
 
     def init(self) -> None:
-        """Initializes the game."""
+        """Inicializa o jogo."""
         pass
 
     def update(self, dt: float) -> None:
-        """Updates the game state."""
+        """Atualiza o jogo."""
         pass
 
     def update_server(self) -> None:
-        """Updates the server state."""
+        """Atualiza o servidor."""
         pass
 
     def draw(self) -> None:
-        """Draws the game."""
+        """Desenha o jogo."""
         pass
