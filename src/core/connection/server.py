@@ -47,12 +47,6 @@ class Server:
             try:
                 client, address = self.__server.accept()
                 self.__add_client(client)
-
-                if self.__match.ready:
-                    client.send(str.encode("-1"))  # Envia -1 para o cliente saber que a partida já começou
-                    self.__remove_client(len(self.__clients) - 1)
-                    print("[Server] Match already started")
-                    continue
             except KeyboardInterrupt:
                 self.stop()
             except OSError:  # Timeout
@@ -109,18 +103,24 @@ class Server:
         while client_id in self.__clients.keys():
             try:
                 data: dict[str, Any] = pickle.loads(client.recv(1024))
-                client.send(pickle.dumps(self.__match))  # Envia a partida atualizada para o cliente
 
                 match data["type"].upper():
                     case "GET":
                         # Não faz nada, já que a partida é enviada no final do loop
                         pass
                     case "JOIN":
+                        if self.__match.is_full():
+                            print(f"[Server] {data['nickname']} tried joining the match")
+                            client.send(pickle.dumps("full"))
+                            break  # Sai do loop
+
                         print(f"[Server] {data['nickname']} joined the match")
                         self.__match.add_player(client_id, data["nickname"])
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break
+
+                client.send(pickle.dumps(self.__match))  # Envia a partida atualizada para o cliente
             except Exception:
                 break
 

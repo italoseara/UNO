@@ -29,6 +29,9 @@ class Match:
     def deck(self) -> Deck:
         return self.__deck
 
+    def is_full(self) -> bool:
+        return len(self.__players) == 4
+
     def get_player(self, player_id: id) -> Player | None:
         """Retorna a mão de um jogador
 
@@ -68,7 +71,8 @@ class Match:
             player.add_card(self.__deck.draw_card())
         self.__players.append(player)
 
-        if len(self.__players) == 4:
+        # TODO: Subsituir por um botão de iniciar partida
+        if self.is_full():
             self.start()
 
     def remove_player(self, player_id: id) -> str | None:

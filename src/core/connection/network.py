@@ -63,10 +63,15 @@ class Network:
 
         self.__client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__client.connect((self.__host, self.__port))
+        self.__client.settimeout(0.2)  # Evita que o cliente fique preso no recv
         self.__running = True
 
         print(f"[Network] Connected to {self.__host}:{self.__port}")
-        return int(self.__client.recv(2048).decode())
+        while True:
+            try:
+                return int(self.__client.recv(1024).decode())
+            except socket.error:
+                pass
 
     def disconnect(self):
         """Desconecta o cliente do servidor"""
@@ -95,8 +100,10 @@ class Network:
 
             try:
                 self.__client.send(pickle.dumps(data))  # Envia dados para o servidor
-                return pickle.loads(self.__client.recv(32768))  # Retorna a partida (32kb)
+                return pickle.loads(self.__client.recv(10240))  # Retorna a partida (10kb)
             except socket.error as e:
-                print(e)
+                print(f"[Network] Error: {e}")
             except pickle.UnpicklingError:
+                return None
+            except EOFError:
                 return None

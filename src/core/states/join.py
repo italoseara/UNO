@@ -85,11 +85,26 @@ class Join(State):
         self._client.connect(ip, port)
         pygame.time.wait(100)
 
-        # Envia o nickname para o servidor e verifica se o servidor está cheio
-        if not self._client.send({"type": "JOIN", "nickname": nickname}):
+        # Tenta se conectar ao servidor 10 vezes
+        result = None
+        for _ in range(10):
+            result = self._client.send({"type": "JOIN", "nickname": nickname})
+            if result is not None:
+                break
+
+        # Se o servidor estiver cheio, mostra um aviso
+        if result == "full":
             self._client.disconnect()
             self._client.add_component(
                 WarningText("Server is full", self._client.width // 2, 550,
+                            font_size=30, align="center"))
+            return
+
+        # Se o servidor não estiver respondendo, mostra um aviso
+        if result is None:
+            self._client.disconnect()
+            self._client.add_component(
+                WarningText("Server not responding", self._client.width // 2, 550,
                             font_size=30, align="center"))
             return
 

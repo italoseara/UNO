@@ -44,6 +44,10 @@ class Client(Engine):
         self.__state = state
         self.__state.init()
 
+    @property
+    def network(self) -> Network | None:
+        return self.__network
+
     @on_event(pygame.QUIT)
     def on_quit(self, _) -> None:
         """Evento de saída do jogo."""
@@ -61,6 +65,8 @@ class Client(Engine):
 
         if self.__network is not None:
             return self.__network.send(data)
+
+        print("[Client] Not connected to a server")
 
     def connect(self, ip: str, port: int) -> None:
         """Conecta ao servidor."""
