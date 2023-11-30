@@ -109,6 +109,8 @@ class Server:
         while client_id in self.__clients.keys():
             try:
                 data: dict[str, Any] = pickle.loads(client.recv(1024))
+                client.send(pickle.dumps(self.__match))  # Envia a partida atualizada para o cliente
+
                 match data["type"].upper():
                     case "GET":
                         # Não faz nada, já que a partida é enviada no final do loop
@@ -119,8 +121,6 @@ class Server:
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break
-
-                client.send(pickle.dumps(self.__match))  # Envia a partida atualizada para o cliente
             except Exception:
                 break
 
