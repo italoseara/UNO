@@ -116,6 +116,9 @@ class Server:
 
                         print(f"[Server] {data['nickname']} joined the match")
                         self.__match.add_player(client_id, data["nickname"])
+                    case "START":
+                        if client_id == 0:  # Apenas o host pode iniciar a partida
+                            self.__match.start()
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break

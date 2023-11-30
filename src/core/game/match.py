@@ -71,10 +71,6 @@ class Match:
             player.add_card(self.__deck.draw_card())
         self.__players.append(player)
 
-        # TODO: Subsituir por um botão de iniciar partida
-        if self.is_full():
-            self.start()
-
     def remove_player(self, player_id: id) -> str | None:
         """Remove um jogador da partida
 

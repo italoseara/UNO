@@ -96,7 +96,7 @@ class Join(State):
         if result == "full":
             self._client.disconnect()
             self._client.add_component(
-                WarningText("Server is full", self._client.width // 2, 550,
+                WarningText("Match is full", self._client.width // 2, 550,
                             font_size=30, align="center"))
             return
 

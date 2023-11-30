@@ -42,6 +42,22 @@ class Party(State):
             Button("x", self._client.width - 20, 20, font_size=30, align="center",
                    width=30, height=30, animation=None, on_click=self.__exit_party))
 
+        if self._client.network.id == 0:
+            self._client.add_component(
+                Button("> Start", self._client.width // 2, self._client.height // 2, font_size=48, align="center",
+                       font_color="#FFD800", hover_color="#FFEE75", width=200, height=50,
+                       animation="up", on_click=self.__start_party), id="start")
+
+    def __start_party(self, *_):
+        if self.__match.get_number_of_players() < 2:
+            self._client.add_component(
+                WarningText("You need at least 2 players", self._client.width // 2, 370,
+                            font_size=30, align="center"), id="left")
+            return
+
+        self._client.network.send({"type": "START"})
+        self._client.pop_component("start")
+
     def __exit_party(self, *_):
         self._client.disconnect()
         self._client.close_server()
@@ -121,8 +137,13 @@ class Party(State):
                 case "left" | "right":
                     surface.blit(flipped_card, (x, get_vpos(hand_dimension, i)))
 
-        name = f"{player.name} (You)" if position == "bottom" else player.name
-        color = "yellow" if player.id == 0 else "white"
+        if player.name.lower() in ("italo", "luige"):
+            name = f"{player.name} (Host)" if player.id == 0 else \
+                f"{player.name} (You)" if position == "bottom" else player.name
+            color = "cyan"
+        else:
+            name = f"{player.name} (You)" if position == "bottom" else player.name
+            color = "yellow" if player.id == 0 else "white"
 
         text = self.__font.render(name, True, color)
         rect = text.get_rect()
