@@ -1,6 +1,7 @@
 import pygame
 
 from assets.components import WarningText, Button
+from core.game.interactivecards import InteractiveCards
 from core.game.player import Player
 from core.game.match import Match
 from core.graphics import Resources
@@ -14,11 +15,13 @@ class Party(State):
     __id: int
     __match: Match | None
 
+    __cards: InteractiveCards | None
+
     # Salvando objetos do pygame para não precisar carregar toda hora
     __flipped_cards: dict[str, pygame.Surface]
     __font: pygame.font.Font
 
-    def __init__(self, client):
+    def __init__(self, client) -> None:
         super().__init__(client)
         self.__match = None
         self.__id = -1
@@ -32,23 +35,27 @@ class Party(State):
             "left": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), -90).convert(),
             "right": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 90).convert(),
             "top": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 180).convert(),
-            "bottom": pygame.transform.scale(Resources.CARD_BACK, size).convert(),
         }
 
         self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
+        self.__cards = None
 
-    def init(self):
+    def init(self) -> None:
         self._client.add_component(
             Button("x", self._client.width - 20, 20, font_size=30, align="center",
                    width=30, height=30, animation=None, on_click=self.__exit_party))
 
-        if self._client.network.id == 0:
+        client_id = self._client.network.id
+
+        if client_id == 0:
             self._client.add_component(
                 Button("> Start", self._client.width // 2, self._client.height // 2, font_size=48, align="center",
                        font_color="#FFD800", hover_color="#FFEE75", width=200, height=50,
                        animation="up", on_click=self.__start_party), id="start")
+        
+        self.__cards = InteractiveCards(client_id, self._client)
 
-    def __start_party(self, *_):
+    def __start_party(self, *_) -> None:
         if self.__match.get_number_of_players() < 2:
             self._client.add_component(
                 WarningText("You need at least 2 players", self._client.width // 2, 370,
@@ -58,7 +65,7 @@ class Party(State):
         self._client.network.send({"type": "START"})
         self._client.pop_component("start")
 
-    def __exit_party(self, *_):
+    def __exit_party(self, *_) -> None:
         self._client.disconnect()
         self._client.close_server()
         self._client.state = Menu(self._client)
@@ -68,7 +75,7 @@ class Party(State):
                 WarningText("You left the party", self._client.width // 2, 550,
                             font_size=30, align="center"), id="left")
 
-    def update(self, dt: float):
+    def update(self, dt: float) -> None:
         if self.__match is None:
             return
 
@@ -78,7 +85,9 @@ class Party(State):
                 WarningText("Host left the party", self._client.width // 2, 550,
                             font_size=30, align="center"), id="left")
 
-    def update_server(self, network: Network):
+        self.__cards.update(self.__match, dt)
+
+    def update_server(self, network: Network) -> None:
         if network is None:
             return
 
@@ -92,7 +101,7 @@ class Party(State):
         if match is not None:
             self.__match = match
 
-    def __draw_hand(self, surface: pygame.Surface, player: Player, position: str):
+    def __draw_hand(self, surface: pygame.Surface, player: Player, position: str) -> None:
         def get_vpos(hd: int, j: int) -> int:
             return y - hd // 2 + j * space
 
@@ -101,8 +110,7 @@ class Party(State):
 
         flipped_card = self.__flipped_cards[position]
         card_dimension = flipped_card.get_width()\
-            if position in ("top", "bottom")\
-            else flipped_card.get_height()
+            if position == "top" else flipped_card.get_height()
 
         # Define a posição das cartas na tela
         match position:
@@ -115,14 +123,11 @@ class Party(State):
             case "top":
                 x = self._client.width // 2
                 y = 20
-            case "bottom":  # Propria mão
-                x = self._client.width // 2
-                y = self._client.height - 20 - flipped_card.get_height()
             case _:
                 return
 
         max_space = -30
-        max_dimension = 600 if position in ("top", "bottom") else 400
+        max_dimension = 600 if position == "top" else 400
 
         space = min(card_dimension + max_space, max_dimension // len(player.hand))
         hand_dimension = (len(player.hand) - 1) * space + card_dimension
@@ -131,18 +136,14 @@ class Party(State):
             match position:
                 case "top":
                     surface.blit(flipped_card, (get_hpos(hand_dimension, i), y))
-                case "bottom":
-                    card_image = card.image if self.__match.ready else flipped_card
-                    surface.blit(card_image, (get_hpos(hand_dimension, i), y))
                 case "left" | "right":
                     surface.blit(flipped_card, (x, get_vpos(hand_dimension, i)))
 
         if player.name.lower() in ("italo", "luige"):
-            name = f"{player.name} (Host)" if player.id == 0 else \
-                f"{player.name} (You)" if position == "bottom" else player.name
+            name = f"{player.name} (Host)" if player.id == 0 else player.name
             color = "cyan"
         else:
-            name = f"{player.name} (You)" if position == "bottom" else player.name
+            name = player.name
             color = "yellow" if player.id == 0 else "white"
 
         text = self.__font.render(name, True, color)
@@ -158,7 +159,7 @@ class Party(State):
 
         surface.blit(text, rect)
 
-    def __draw_cards(self, surface: pygame.Surface):
+    def __draw_cards(self, surface: pygame.Surface) -> None:
         players_len = self.__match.get_number_of_players()
 
         offsets = {
@@ -179,15 +180,11 @@ class Party(State):
                 if player is not None and player.hand:
                     self.__draw_hand(surface, player, position)
 
-        player = self.__match.get_player(self.__id)
-        if player.hand:
-            # TODO: Tornar as cartas interativas
-            self.__draw_hand(surface, player, "bottom")
-
-    def draw(self, surface: pygame.Surface):
+    def draw(self, surface: pygame.Surface) -> None:
         surface.blit(Resources.BACKGROUND, (0, 0))
 
         if self.__match is None:
             return
 
         self.__draw_cards(surface)
+        self.__cards.draw(surface)
