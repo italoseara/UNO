@@ -50,6 +50,9 @@ class InteractiveCards:
         size = (int(Resources.CARD_BACK.get_width() * 3.5), int(Resources.CARD_BACK.get_height() * 3.5))
         self.__flipped_card = pygame.transform.scale(Resources.CARD_BACK, size).convert()
 
+        # Carrega a fonte
+        self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
+
     def __update_cards(self) -> None:
         # TODO: Atualizar corretamente a lista de cartas
         if self.__player is None or self.__match is None:
@@ -92,6 +95,19 @@ class InteractiveCards:
     def draw(self, surface: pygame.Surface) -> None:
         if self.__player is None or self.__match is None or not self.__cards:
             return
+
+        # Desenha o nome do jogador
+        if self.__player.name.lower() in ('italo', 'luige'):
+            name = f'{self.__player.name} (Host)' if self.__player.id == 0 else f'{self.__player.name} (You)'
+            color = 'cyan'
+        else:
+            name = f'{self.__player.name} (You)'
+            color = 'yellow' if self.__player.id == 0 else 'white'
+
+        text = self.__font.render(name, True, color)
+        rect = text.get_rect()
+        rect.midbottom = (self.__client.width // 2, self.__client.height - self.__flipped_card.get_height() - 20)
+        surface.blit(text, rect)
 
         # Desenha as cartas
         for icard in self.__cards:
