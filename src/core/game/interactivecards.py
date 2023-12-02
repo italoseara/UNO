@@ -1,3 +1,4 @@
+import time
 import pygame
 from typing import Self
 from core.graphics import Resources
@@ -53,6 +54,13 @@ class InteractiveCards:
         # Carrega a fonte
         self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
 
+        # Variavel para controlar o tempo entre os cliques
+        self.__last_click = 0
+        self.__holding_click = False
+
+        # Fila de requisições para o servidor
+        self.__requests = []
+
     def __update_cards(self) -> None:
         # TODO: Atualizar corretamente a lista de cartas
         if self.__player is None or self.__match is None:
@@ -78,11 +86,22 @@ class InteractiveCards:
                 x = self.__client.width // 2 - hand_dimension // 2 + i * space
                 self.__cards.append(InteractiveCard(card, x, y))
 
-    def __animate_cards(self) -> None:        
-        for i, card in enumerate(self.__cards):
+    def __animate_cards(self) -> None:
+        # TODO: Mudar para quando for a vez do jogador
+        if not self.__match.ready:
+            return
+        
+        for i, icard in enumerate(self.__cards):
             next_card = self.__cards[i + 1] if i + 1 < len(self.__cards) else None
-            
-            card.move(y=-30 if card.is_hovering(next_card) else 0)
+
+            if icard.is_hovering(next_card):
+                if pygame.mouse.get_pressed()[0] and time.time() - self.__last_click > 0.3 and not self.__holding_click:
+                    self.__last_click = time.time()
+                    self.__requests.append({"type": "PLAY", "index": i})
+                
+                icard.move(y=-30)
+            else:
+                icard.move(y=0)
 
     def update(self, match: Match, dt: float) -> None:
         self.__match = match
@@ -91,6 +110,19 @@ class InteractiveCards:
         # Atualiza a lista de cartas
         self.__update_cards()
         self.__animate_cards()
+
+        left_click = pygame.mouse.get_pressed()[0]
+        if left_click:
+            self.__holding_click = True
+        elif not left_click and self.__holding_click:
+            self.__holding_click = False
+
+    def update_server(self, network) -> None:
+        if not self.__requests:
+            return
+
+        request = self.__requests.pop(0)
+        network.send(request)
 
     def draw(self, surface: pygame.Surface) -> None:
         if self.__player is None or self.__match is None or not self.__cards:

@@ -40,6 +40,8 @@ class Party(State):
         self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
         self.__cards = None
 
+        self.__requests = []
+
     def init(self) -> None:
         self._client.add_component(
             Button("x", self._client.width - 20, 20, font_size=30, align="center",
@@ -62,7 +64,7 @@ class Party(State):
                             font_size=30, align="center"), id="left")
             return
 
-        self._client.network.send({"type": "START"})
+        self.__requests.append({"type": "START"})
         self._client.pop_component("start")
 
     def __exit_party(self, *_) -> None:
@@ -100,6 +102,12 @@ class Party(State):
         match = network.send({"type": "GET"})
         if match is not None:
             self.__match = match
+
+        if self.__requests:
+            request = self.__requests.pop(0)
+            network.send(request)
+
+        self.__cards.update_server(network)
 
     def __draw_hand(self, surface: pygame.Surface, player: Player, position: str) -> None:
         def get_vpos(hd: int, j: int) -> int:

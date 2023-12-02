@@ -88,3 +88,16 @@ class Match:
                 self.__players.remove(player)
                 return player.name
         return None
+
+    def play(self, player_id: int, card_index: int) -> None:
+        """Joga uma carta
+
+        Args:
+            player_id (int): ID do jogador
+            card_index (int): Índice da carta na mão do jogador
+        """
+
+        player = self.get_player(player_id)
+        card = player.hand[card_index]
+        # TODO: Adiciona a carta ao monte de descarte
+        player.remove_card(card_index)
