@@ -140,18 +140,19 @@ class Party(State):
             case _:
                 return
 
-        max_space = -30
-        max_dimension = 600 if position == "top" else 400
+        if player.hand:
+            max_space = -30
+            max_dimension = 600 if position == "top" else 400
 
-        space = min(card_dimension + max_space, max_dimension // len(player.hand))
-        hand_dimension = (len(player.hand) - 1) * space + card_dimension
+            space = min(card_dimension + max_space, max_dimension // len(player.hand))
+            hand_dimension = (len(player.hand) - 1) * space + card_dimension
 
-        for i, card in enumerate(player.hand):
-            match position:
-                case "top":
-                    surface.blit(flipped_card, (get_hpos(hand_dimension, i), y))
-                case "left" | "right":
-                    surface.blit(flipped_card, (x, get_vpos(hand_dimension, i)))
+            for i, card in enumerate(player.hand):
+                match position:
+                    case "top":
+                        surface.blit(flipped_card, (get_hpos(hand_dimension, i), y))
+                    case "left" | "right":
+                        surface.blit(flipped_card, (x, get_vpos(hand_dimension, i)))
 
         if player.name.lower() in ("italo", "luige"):
             name = f"{player.name} (Host)" if player.id == 0 else player.name
@@ -191,14 +192,15 @@ class Party(State):
 
             if player_id is not None:
                 player = self.__match.get_player(player_id)
-                if player is not None and player.hand:
+                if player is not None:
                     self.__draw_hand(surface, player, position)
 
     def __draw_discard(self, surface: pygame.Surface) -> None:
         for dcard in self.__match.discard:
             image = pygame.transform.rotate(dcard.card.image, dcard.rotation)
             rect = image.get_rect()
-            rect.center = (self._client.width // 2, self._client.height // 2)
+            rect.center = (self._client.width // 2 + dcard.offset[0], 
+                           self._client.height // 2 + dcard.offset[1])
 
             surface.blit(image, rect)
 

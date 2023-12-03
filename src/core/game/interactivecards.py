@@ -77,6 +77,9 @@ class InteractiveCards:
         if hand != interactive:
             self.__cards.clear()
 
+            if len(hand) == 0:
+                return
+
             max_space = -30
             max_dimension = 600
 
@@ -136,7 +139,7 @@ class InteractiveCards:
         network.send(request)
 
     def draw(self, surface: pygame.Surface) -> None:
-        if self.__player is None or self.__match is None or not self.__cards:
+        if self.__player is None or self.__match is None:
             return
 
         # Desenha o nome do jogador

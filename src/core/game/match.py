@@ -7,9 +7,10 @@ from .cards import Card
 
 
 class CardMount:
-    def __init__(self, card: Card, rotation: int = None) -> None:
+    def __init__(self, card: Card, rotation: int = None, offset: tuple[int, int] = None) -> None:
         self.__card = card
         self.__rotation = random.randint(-80, 80) if rotation is None else rotation
+        self.__offset = (random.randint(-10, 10), random.randint(-10, 10)) if offset is None else offset  
 
     @property
     def card(self) -> Card:
@@ -18,6 +19,10 @@ class CardMount:
     @property
     def rotation(self) -> int:
         return self.__rotation
+
+    @property
+    def offset(self) -> tuple[int, int]:
+        return self.__offset
 
 
 class Match:
@@ -89,7 +94,7 @@ class Match:
         self.__turn = random.randint(0, len(self.__players) - 1)
 
         # Coloca uma carta no monte de descarte
-        self.__discard.push(CardMount(self.__deck.pop(), 0))
+        self.__discard.push(CardMount(self.__deck.pop(), 0, (0, 0)))
 
     def add_player(self, player_id: id, player_name: str) -> None:
         """Adiciona um jogador à partida
