@@ -162,4 +162,8 @@ class InteractiveCards:
                 self.__match.is_playable(icard.card) and
                 self.__match.turn == self.__player.id
             ) if self.__match.ready else False
+
             icard.draw(surface, image, not playable)
+
+    def __iter__(self):
+        return iter(self.__cards)

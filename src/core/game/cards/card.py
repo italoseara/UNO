@@ -28,6 +28,10 @@ class Card:
         return self._color
 
     @property
+    def value(self) -> str:
+        return self._value
+
+    @property
     def name(self) -> str:
         return self._name
 

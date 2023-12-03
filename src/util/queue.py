@@ -17,7 +17,9 @@ class Queue(Generic[T]):
         return self._queue.pop(0)
 
     def peek(self) -> T:
-        return self._queue[0]
+        if self.is_empty():
+            return None
+        return self._queue[-1]
 
     def is_empty(self) -> bool:
         return len(self._queue) == 0

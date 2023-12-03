@@ -207,8 +207,9 @@ class Party(State):
     def __draw_deck(self, surface: pygame.Surface) -> None:
         for i in range(3):
             surface.blit(self.__flipped_cards["regular"], (165 - 2*i, 175 - 2*i))
-            if not self.__match.ready or self.__match.turn != self.__id:
-                # Desenha um retangulo preto transparente
+
+            playable_cards = [card.card for card in self.__cards if self.__match.is_playable(card.card)]
+            if not self.__match.ready or self.__match.turn != self.__id or len(playable_cards) != 0:
                 rect = pygame.Surface((self.__flipped_cards["regular"].get_width(),
                                        self.__flipped_cards["regular"].get_height()))
                 rect.set_alpha(128)

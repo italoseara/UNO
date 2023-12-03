@@ -3,7 +3,7 @@ from util import Queue
 
 from .player import Player
 from .deck import Deck
-from .cards import Card
+from .cards import Card, CardColor
 
 
 class CardMount:
@@ -63,8 +63,15 @@ class Match:
         return len(self.__players) == 4
 
     def is_playable(self, card: Card) -> bool:
-        # TODO: Verifica se a carta pode ser jogada
-        return True
+        top = self.__discard.peek()
+        if top is None:
+            return False
+
+        # TODO: Wild cards can change color
+        return top.card.color == CardColor.WILD or \
+               card.color == CardColor.WILD or \
+               card.color == top.card.color or \
+               card.value == top.card.value
 
     def get_player(self, player_id: id) -> Player | None:
         """Retorna a mão de um jogador
