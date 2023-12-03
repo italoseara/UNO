@@ -41,5 +41,5 @@ class Card:
         img = Resources.CARDS[self._color][self._value + ".png"]
         return pygame.transform.scale(img, (int(img.get_width() * 3.5), int(img.get_height() * 3.5)))
 
-    def play(self, game):
+    def play(self, match):
         pass

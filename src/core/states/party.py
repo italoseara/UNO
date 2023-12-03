@@ -6,6 +6,7 @@ from core.game.player import Player
 from core.game.match import Match
 from core.graphics import Resources
 from core.connection import Network
+from util import Queue
 
 from .menu import Menu
 from .state import State
@@ -21,6 +22,9 @@ class Party(State):
     __flipped_cards: dict[str, pygame.Surface]
     __font: pygame.font.Font
 
+    # Fila de requisições
+    __requests: Queue[dict]
+
     def __init__(self, client) -> None:
         super().__init__(client)
         self.__match = None
@@ -35,12 +39,13 @@ class Party(State):
             "left": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), -90).convert(),
             "right": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 90).convert(),
             "top": pygame.transform.rotate(pygame.transform.scale(Resources.CARD_BACK, size), 180).convert(),
+            "regular": pygame.transform.scale(Resources.CARD_BACK, size).convert_alpha()
         }
 
         self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
         self.__cards = None
 
-        self.__requests = []
+        self.__requests = Queue[dict]()
 
     def init(self) -> None:
         self._client.add_component(
@@ -64,7 +69,7 @@ class Party(State):
                             font_size=30, align="center"), id="left")
             return
 
-        self.__requests.append({"type": "START"})
+        self.__requests.push({"type": "START"})
         self._client.pop_component("start")
 
     def __exit_party(self, *_) -> None:
@@ -103,11 +108,12 @@ class Party(State):
         if match is not None:
             self.__match = match
 
-        if self.__requests:
-            request = self.__requests.pop(0)
+        if not self.__requests.is_empty():
+            request = self.__requests.pop()
             network.send(request)
 
-        self.__cards.update_server(network)
+        if self.__cards is not None:
+            self.__cards.update_server(network)
 
     def __draw_hand(self, surface: pygame.Surface, player: Player, position: str) -> None:
         def get_vpos(hd: int, j: int) -> int:
@@ -188,11 +194,39 @@ class Party(State):
                 if player is not None and player.hand:
                     self.__draw_hand(surface, player, position)
 
+    def __draw_discard(self, surface: pygame.Surface) -> None:
+        for dcard in self.__match.discard:
+            image = pygame.transform.rotate(dcard.card.image, dcard.rotation)
+            rect = image.get_rect()
+            rect.center = (self._client.width // 2, self._client.height // 2)
+
+            surface.blit(image, rect)
+
+    def __draw_deck(self, surface: pygame.Surface) -> None:
+        for i in range(3):
+            surface.blit(self.__flipped_cards["regular"], (165 - 2*i, 175 - 2*i))
+            if not self.__match.ready or self.__match.turn != self.__id:
+                # Desenha um retangulo preto transparente
+                rect = pygame.Surface((self.__flipped_cards["regular"].get_width(),
+                                       self.__flipped_cards["regular"].get_height()))
+                rect.set_alpha(128)
+                rect.fill((0, 0, 0))
+                surface.blit(rect, (165 - 2*i, 175 - 2*i))
+
     def draw(self, surface: pygame.Surface) -> None:
         surface.blit(Resources.BACKGROUND, (0, 0))
 
         if self.__match is None:
             return
 
+        # Desenha a carta de outros jogadores
         self.__draw_cards(surface)
+
+        # Desenha as proprias cartas
         self.__cards.draw(surface)
+
+        # Desenha o baralho
+        self.__draw_deck(surface)
+
+        # Desenha o monte de descarte
+        self.__draw_discard(surface)

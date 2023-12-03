@@ -1,17 +1,34 @@
+import random
+from util import Queue
+
 from .player import Player
 from .deck import Deck
 from .cards import Card
 
 
-class Match:
-    __ready: bool
-    __deck: Deck | None
-    __players: list[Player]
+class CardMount:
+    def __init__(self, card: Card, rotation: int = None) -> None:
+        self.__card = card
+        self.__rotation = random.randint(-80, 80) if rotation is None else rotation
 
-    def __init__(self):
+    @property
+    def card(self) -> Card:
+        return self.__card
+
+    @property
+    def rotation(self) -> int:
+        return self.__rotation
+
+
+class Match:
+    def __init__(self) -> None:
         self.__ready = False
+        self.__turn = 0
+
         self.__players = []
+
         self.__deck = Deck()
+        self.__discard = Queue[CardMount]()
 
     @property
     def ready(self) -> bool:
@@ -29,8 +46,20 @@ class Match:
     def deck(self) -> Deck:
         return self.__deck
 
+    @property
+    def discard(self) -> Queue[CardMount]:
+        return self.__discard
+
+    @property
+    def turn(self) -> int:
+        return self.__turn
+
     def is_full(self) -> bool:
         return len(self.__players) == 4
+
+    def is_playable(self, card: Card) -> bool:
+        # TODO: Verifica se a carta pode ser jogada
+        return True
 
     def get_player(self, player_id: id) -> Player | None:
         """Retorna a mão de um jogador
@@ -45,7 +74,6 @@ class Match:
         for player in self.__players:
             if player.id == player_id:
                 return player
-        return None
 
     def get_number_of_players(self) -> int:
         """Retorna o número de jogadores na partida"""
@@ -56,6 +84,12 @@ class Match:
         """Inicia a partida"""
 
         self.__ready = True
+
+        # Sorteia o jogador inicial
+        self.__turn = random.randint(0, len(self.__players) - 1)
+
+        # Coloca uma carta no monte de descarte
+        self.__discard.push(CardMount(self.__deck.pop(), 0))
 
     def add_player(self, player_id: id, player_name: str) -> None:
         """Adiciona um jogador à partida
@@ -68,7 +102,7 @@ class Match:
 
         # Distribui 7 cartas para cada jogador
         for _ in range(7):
-            player.add_card(self.__deck.draw_card())
+            player.add_card(self.__deck.pop())
         self.__players.append(player)
 
     def remove_player(self, player_id: id) -> str | None:
@@ -87,7 +121,6 @@ class Match:
                     self.__deck.push(card)
                 self.__players.remove(player)
                 return player.name
-        return None
 
     def play(self, player_id: int, card_index: int) -> None:
         """Joga uma carta
@@ -98,6 +131,9 @@ class Match:
         """
 
         player = self.get_player(player_id)
-        card = player.hand[card_index]
-        # TODO: Adiciona a carta ao monte de descarte
-        player.remove_card(card_index)
+        card = player.remove_card(card_index)
+        
+        self.__discard.push(CardMount(card))
+        # TODO: Verifica se o jogador ganhou
+        card.play(self)
+        self.__turn = (self.__turn + 1) % len(self.__players)

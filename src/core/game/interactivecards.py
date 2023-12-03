@@ -4,7 +4,7 @@ from typing import Self
 from core.graphics import Resources
 from core.game.match import Match
 from core.game.cards import Card
-from util import lerp
+from util import lerp, Queue
 
 
 class InteractiveCard:
@@ -23,10 +23,15 @@ class InteractiveCard:
         self.__x = lerp(self.__x, self.__original_x + x, 0.2)
         self.__y = lerp(self.__y, self.__original_y + y, 0.2)
 
-    def draw(self, surface: pygame.Surface, image: pygame.Surface = None) -> None:
+    def draw(self, surface: pygame.Surface, image: pygame.Surface = None, disabled: bool = False) -> None:
         surface.blit(image or self.__card.image, (self.__x, self.__y))
 
-    def __is_hovering(self):
+        if disabled or image:
+            rect = pygame.Surface((self.__card.image.get_width(), self.__card.image.get_height()), pygame.SRCALPHA)
+            rect.fill((0, 0, 0, 128))
+            surface.blit(rect, (self.__x, self.__y))
+
+    def __is_hovering(self) -> bool:
         x, y = pygame.mouse.get_pos()
         return self.__x <= x <= self.__x + self.__card.image.get_width() and \
                self.__y <= y <= self.__y + self.__card.image.get_height()
@@ -59,7 +64,7 @@ class InteractiveCards:
         self.__holding_click = False
 
         # Fila de requisições para o servidor
-        self.__requests = []
+        self.__requests = Queue[dict]()
 
     def __update_cards(self) -> None:
         # TODO: Atualizar corretamente a lista de cartas
@@ -95,9 +100,15 @@ class InteractiveCards:
             next_card = self.__cards[i + 1] if i + 1 < len(self.__cards) else None
 
             if icard.is_hovering(next_card):
-                if pygame.mouse.get_pressed()[0] and time.time() - self.__last_click > 0.3 and not self.__holding_click:
+                last = time.time() - self.__last_click
+                playable = (
+                    self.__match.is_playable(icard.card) and
+                    self.__match.turn == self.__player.id
+                ) if self.__match.ready else False
+                if pygame.mouse.get_pressed()[0] and last > 0.3 and not self.__holding_click and playable:
+                    # TODO: Verifica se pode jogar a carta
                     self.__last_click = time.time()
-                    self.__requests.append({"type": "PLAY", "index": i})
+                    self.__requests.push({"type": "PLAY", "index": i})
                 
                 icard.move(y=-30)
             else:
@@ -118,10 +129,10 @@ class InteractiveCards:
             self.__holding_click = False
 
     def update_server(self, network) -> None:
-        if not self.__requests:
+        if self.__requests.is_empty():
             return
 
-        request = self.__requests.pop(0)
+        request = self.__requests.pop()
         network.send(request)
 
     def draw(self, surface: pygame.Surface) -> None:
@@ -144,4 +155,8 @@ class InteractiveCards:
         # Desenha as cartas
         for icard in self.__cards:
             image = self.__flipped_card if not self.__match.ready else None
-            icard.draw(surface, image)
+            playable = (
+                self.__match.is_playable(icard.card) and
+                self.__match.turn == self.__player.id
+            ) if self.__match.ready else False
+            icard.draw(surface, image, not playable)

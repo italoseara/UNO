@@ -32,11 +32,11 @@ class Player:
 
         self.__hand.append(card)
 
-    def remove_card(self, index: int) -> None:
+    def remove_card(self, index: int) -> Card:
         """Remove uma carta da mão do jogador
 
         Args:
             index (int): Índice da carta a ser removida
         """
 
-        self.__hand.pop(index)
+        return self.__hand.pop(index)
