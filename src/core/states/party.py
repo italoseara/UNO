@@ -21,6 +21,7 @@ class Party(State):
 
     # Salvando objetos do pygame para não precisar carregar toda hora
     __flipped_cards: dict[str, pygame.Surface]
+    __color_picker: pygame.Surface
     __font: pygame.font.Font
 
     # Fila de requisições
@@ -28,7 +29,7 @@ class Party(State):
 
     # Variaveis logicas
     __holding_mouse: bool
-    __last_deck_click: float
+    __last_click: float
 
     def __init__(self, client) -> None:
         super().__init__(client)
@@ -47,13 +48,15 @@ class Party(State):
             "regular": pygame.transform.scale(Resources.CARD_BACK, size).convert_alpha()
         }
 
+        cp_size = int(Resources.COLOR_PICKER.get_width() * 4), int(Resources.COLOR_PICKER.get_height() * 4)
+        self.__color_picker = pygame.transform.scale(Resources.COLOR_PICKER, cp_size).convert_alpha()
         self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
         self.__cards = None
 
         self.__requests = Queue[dict]()
 
         self.__holding_mouse = False
-        self.__last_deck_click = 0
+        self.__last_click = 0
 
     def __start_party(self, *_) -> None:
         if self.__match.get_number_of_players() < 2:
@@ -76,10 +79,10 @@ class Party(State):
                             font_size=30, align="center"), id="left")
 
     def __update_deck(self, dt: float) -> None:
-        if not self.__match.ready or not self.__match.turn == self.__id or not self.__match.can_draw(self.__id):
+        if not self.__match.ready or not self.__match.can_play(self.__id) or not self.__match.can_draw(self.__id):
             return
 
-        if self.__holding_mouse or time.time() - self.__last_deck_click < 0.5:
+        if self.__holding_mouse or time.time() - self.__last_click < 0.5:
             return
 
         card = self.__flipped_cards["regular"]
@@ -87,7 +90,38 @@ class Party(State):
 
         if hitbox.collidepoint(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             self.__requests.push({"type": "DRAW"})
-            self.__last_deck_click = time.time()
+            self.__last_click = time.time()
+
+    def __update_color_picker(self, dt: float) -> None:
+        player = self.__match.get_player(self.__id)
+        if player is None or not player.selecting_color:
+            return
+
+        green_rect = pygame.Rect(0, 0, 50, 60)
+        green_rect.center = (self._client.width // 2, self._client.height // 2 - 60)
+
+        red_rect = pygame.Rect(0, 0, 50, 60)
+        red_rect.center = (self._client.width // 2, self._client.height // 2 + 50)
+
+        yellow_rect = pygame.Rect(0, 0, 60, 50)
+        yellow_rect.center = (self._client.width // 2 + 55, self._client.height // 2)
+
+        blue_rect = pygame.Rect(0, 0, 60, 50)
+        blue_rect.center = (self._client.width // 2 - 55, self._client.height // 2)
+
+        options = {
+            "green": green_rect,
+            "red": red_rect,
+            "yellow": yellow_rect,
+            "blue": blue_rect
+        }
+
+        for color, rect in options.items():
+            if rect.collidepoint(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] and \
+                    time.time() - self.__last_click > 0.5:
+                print(color)
+                self.__requests.push({"type": "SELECT_COLOR", "color": color})
+                self.__last_click = time.time()
 
     def __draw_hand(self, surface: pygame.Surface, player: Player, position: str) -> None:
         def get_vpos(hd: int, j: int) -> int:
@@ -191,12 +225,22 @@ class Party(State):
         for i in range(3):
             surface.blit(self.__flipped_cards["regular"], (165 - 2*i, 175 - 2*i))
 
-            if not self.__match.ready or self.__match.turn != self.__id or not self.__match.can_draw(self.__id):
+            if not self.__match.ready or not self.__match.can_play(self.__id) or not self.__match.can_draw(self.__id):
                 rect = pygame.Surface((self.__flipped_cards["regular"].get_width(),
                                        self.__flipped_cards["regular"].get_height()))
                 rect.set_alpha(128)
                 rect.fill((0, 0, 0))
                 surface.blit(rect, (165 - 2*i, 175 - 2*i))
+
+    def __draw_color_picker(self, surface: pygame.Surface) -> None:
+        player = self.__match.get_player(self.__id)
+        if player is None or not player.selecting_color:
+            return
+
+        rect = self.__color_picker.get_rect()
+        rect.center = (self._client.width // 2, self._client.height // 2)
+
+        surface.blit(self.__color_picker, rect)
 
     def init(self) -> None:
         self._client.add_component(
@@ -225,6 +269,7 @@ class Party(State):
 
         self.__cards.update(self.__match, dt)
         self.__update_deck(dt)
+        self.__update_color_picker(dt)
 
         if pygame.mouse.get_pressed()[0]:
             self.__holding_mouse = True
@@ -269,3 +314,6 @@ class Party(State):
 
         # Desenha o monte de descarte
         self.__draw_discard(surface)
+
+        # Desenha o seletor de cor
+        self.__draw_color_picker(surface)

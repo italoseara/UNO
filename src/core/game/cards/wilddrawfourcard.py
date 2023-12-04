@@ -1,9 +1,11 @@
-from .card import Card, CardColor
+from typing import Any
+from .card import CardColor, Card
+from .wildcard import WildCard
 
 
-class WildDrawFourCard(Card):
+class WildDrawFourCard(WildCard):
     def __init__(self):
-        super().__init__("wild", "draw4")
+        Card.__init__(self, CardColor.WILD, "select_color")
 
-    def play(self, game):
-        pass
+    def play(self, match: Any, player_id: int):
+        super().play(match, player_id)

@@ -120,11 +120,14 @@ class Server:
                         if client_id == 0:  # Apenas o host pode iniciar a partida
                             self.__match.start()
                     case "PLAY":
-                        if self.__match.turn == client_id:
+                        if self.__match.can_play(client_id):
                             self.__match.play(client_id, data["index"])
                     case "DRAW":
-                        if self.__match.turn == client_id and self.__match.can_draw(client_id):
+                        if self.__match.can_play(client_id) and self.__match.can_draw(client_id):
                             self.__match.draw(client_id)
+                    case "SELECT_COLOR":
+                        if self.__match.turn == client_id and self.__match.get_player(client_id).selecting_color:
+                            self.__match.select_color(client_id, data["color"])
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break

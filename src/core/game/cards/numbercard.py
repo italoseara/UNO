@@ -1,3 +1,4 @@
+from typing import Any
 from .card import Card, CardColor
 
 
@@ -11,5 +12,5 @@ class NumberCard(Card):
 
         super().__init__(color, value)
 
-    def play(self, game):
+    def play(self, match: Any, player_id: int):
         pass

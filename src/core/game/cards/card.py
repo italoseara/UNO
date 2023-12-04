@@ -1,4 +1,5 @@
 import pygame
+from typing import Any
 
 from core.graphics import Resources
 
@@ -20,12 +21,13 @@ class Card:
         self._color = color
         self._value = value
 
-        self._name = f"{self._color}-{self._value}"
-        self._image_path = f"src/assets/images/cards/{self._color}/{self._value}.png"
-
     @property
     def color(self) -> str:
         return self._color
+
+    @color.setter
+    def color(self, color: str) -> None:
+        self._color = color
 
     @property
     def value(self) -> str:
@@ -33,17 +35,17 @@ class Card:
 
     @property
     def name(self) -> str:
-        return self._name
+        return f"{self._color}-{self._value}"
 
     @property
     def image(self) -> pygame.Surface:
-        if self._name not in self._images_cache:
-            self._images_cache[self._name] = self.load_image()
-        return self._images_cache[self._name]
+        if self.name not in self._images_cache:
+            self._images_cache[self.name] = self.load_image()
+        return self._images_cache[self.name]
 
     def load_image(self):
         img = Resources.CARDS[self._color][self._value + ".png"]
         return pygame.transform.scale(img, (int(img.get_width() * 3.5), int(img.get_height() * 3.5)))
 
-    def play(self, match):
+    def play(self, match: Any, player_id: int):
         pass

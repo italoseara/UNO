@@ -106,7 +106,7 @@ class InteractiveCards:
                 last = time.time() - self.__last_click
                 playable = (
                     self.__match.is_playable(icard.card) and
-                    self.__match.turn == self.__player.id
+                    self.__match.can_play(self.__player.id)
                 ) if self.__match.ready else False
                 if pygame.mouse.get_pressed()[0] and last > 0.3 and not self.__holding_click and playable:
                     # TODO: Verifica se pode jogar a carta
@@ -167,7 +167,7 @@ class InteractiveCards:
             image = self.__flipped_card if not self.__match.ready else None
             playable = (
                 self.__match.is_playable(icard.card) and
-                self.__match.turn == self.__player.id
+                self.__match.can_play(self.__player.id)
             ) if self.__match.ready else False
 
             icard.draw(surface, image, not playable)

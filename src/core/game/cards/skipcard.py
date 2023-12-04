@@ -1,3 +1,4 @@
+from typing import Any
 from .card import Card, CardColor
 
 
@@ -8,5 +9,5 @@ class SkipCard(Card):
 
         super().__init__(color, "skip")
 
-    def play(self, game):
+    def play(self, match: Any, player_id: int):
         pass

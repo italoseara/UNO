@@ -40,6 +40,10 @@ class Match:
         return self.__ready
 
     @property
+    def turn(self) -> int:
+        return self.__turn
+
+    @property
     def host_online(self) -> bool:
         return 0 in [player.id for player in self.players]
 
@@ -54,10 +58,6 @@ class Match:
     @property
     def discard(self) -> Queue[CardMount]:
         return self.__discard
-
-    @property
-    def turn(self) -> int:
-        return self.__turn
 
     def is_full(self) -> bool:
         return len(self.__players) == 4
@@ -76,6 +76,10 @@ class Match:
     def can_draw(self, player_id: int) -> bool:
         playable_cards = [card for card in self.get_player(player_id).hand if self.is_playable(card)]
         return len(playable_cards) == 0
+
+    def can_play(self, player_id: int) -> bool:
+        player = self.get_player(player_id)
+        return self.__turn == player_id and not player.selecting_color
 
     def get_player(self, player_id: id) -> Player | None:
         """Retorna a mão de um jogador
@@ -151,8 +155,11 @@ class Match:
 
         self.__discard.push(CardMount(card))
         # TODO: Verifica se o jogador ganhou
-        card.play(self)
-        self.__turn = (self.__turn + 1) % len(self.__players)
+        card.play(self, player_id)
+
+        # Passa a vez
+        if not player.selecting_color:
+            self.__turn = (self.__turn + 1) % len(self.__players)
 
     def draw(self, player_id: int) -> None:
         """Compra uma carta
@@ -163,3 +170,19 @@ class Match:
 
         player = self.get_player(player_id)
         player.add_card(self.__deck.pop())
+
+    def select_color(self, player_id: int, color: str):
+        """Seleciona uma cor
+
+        Args:
+            player_id (int): ID do jogador
+            color (str): Cor selecionada
+        """
+
+        player = self.get_player(player_id)
+        player.selecting_color = False
+
+        card = self.__discard.peek().card
+        card.color = color
+
+        self.__turn = (self.__turn + 1) % len(self.__players)

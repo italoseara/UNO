@@ -12,6 +12,7 @@ class Resources:
     CARD_WORLD_RESIZED = pygame.image.load("src/assets/images/resized/world.png")
     CARD_BACK_RESIZED = pygame.image.load("src/assets/images/resized/back.png")
     CARD_BACK = pygame.image.load("src/assets/images/cards/back.png")
+    COLOR_PICKER = pygame.image.load("src/assets/images/color_picker.png")
 
     # Carrega todas as cartas do jogo previamente (para evitar carregamento durante a partida)
     CARDS = {
