@@ -55,21 +55,6 @@ class Party(State):
         self.__holding_mouse = False
         self.__last_deck_click = 0
 
-    def init(self) -> None:
-        self._client.add_component(
-            Button("x", self._client.width - 20, 20, font_size=30, align="center",
-                   width=30, height=30, animation=None, on_click=self.__exit_party))
-
-        client_id = self._client.network.id
-
-        if client_id == 0:
-            self._client.add_component(
-                Button("> Start", self._client.width // 2, self._client.height // 2, font_size=48, align="center",
-                       font_color="#FFD800", hover_color="#FFEE75", width=200, height=50,
-                       animation="up", on_click=self.__start_party), id="start")
-        
-        self.__cards = InteractiveCards(client_id, self._client)
-
     def __start_party(self, *_) -> None:
         if self.__match.get_number_of_players() < 2:
             self._client.add_component(
@@ -103,45 +88,6 @@ class Party(State):
         if hitbox.collidepoint(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             self.__requests.push({"type": "DRAW"})
             self.__last_deck_click = time.time()
-
-    def update(self, dt: float) -> None:
-        if self.__match is None:
-            return
-
-        if not self.__match.host_online:
-            self.__exit_party()
-            self._client.add_component(
-                WarningText("Host left the party", self._client.width // 2, 550,
-                            font_size=30, align="center"), id="left")
-
-        self.__cards.update(self.__match, dt)
-        self.__update_deck(dt)
-
-        if pygame.mouse.get_pressed()[0]:
-            self.__holding_mouse = True
-        elif self.__holding_mouse:
-            self.__holding_mouse = False
-
-    def update_server(self, network: Network) -> None:
-        if network is None:
-            return
-
-        # Se a partida já começou, volta para o menu de join
-        self.__id = network.id
-        if self.__id == -1:
-            self.__exit_party()
-            return
-
-        match = network.send({"type": "GET"})
-        if match is not None:
-            self.__match = match
-
-        if not self.__requests.is_empty():
-            request = self.__requests.pop()
-            network.send(request)
-
-        if self.__cards is not None:
-            self.__cards.update_server(network)
 
     def __draw_hand(self, surface: pygame.Surface, player: Player, position: str) -> None:
         def get_vpos(hd: int, j: int) -> int:
@@ -181,6 +127,8 @@ class Party(State):
                         surface.blit(flipped_card, (get_hpos(hand_dimension, i), y))
                     case "left" | "right":
                         surface.blit(flipped_card, (x, get_vpos(hand_dimension, i)))
+        else:
+            hand_dimension = 0
 
         if player.name.lower() in ("italo", "luige"):
             name = f"{player.name} (Host)" if player.id == 0 else player.name
@@ -201,6 +149,13 @@ class Party(State):
                 rect.midbottom = (x + flipped_card.get_width() // 2, y - hand_dimension // 2 - 5)
 
         surface.blit(text, rect)
+
+        # Desenha uma seta indicando o turno
+        if self.__match.ready and self.__match.turn == player.id:
+            arrow_text = self.__font.render('<', True, 'green')
+            arrow_rect = text.get_rect()
+            arrow_rect.midleft = (rect.right + 10, rect.centery)
+            surface.blit(arrow_text, arrow_rect)
 
     def __draw_cards(self, surface: pygame.Surface) -> None:
         players_len = self.__match.get_number_of_players()
@@ -242,6 +197,60 @@ class Party(State):
                 rect.set_alpha(128)
                 rect.fill((0, 0, 0))
                 surface.blit(rect, (165 - 2*i, 175 - 2*i))
+
+    def init(self) -> None:
+        self._client.add_component(
+            Button("x", self._client.width - 20, 20, font_size=30, align="center",
+                   width=30, height=30, animation=None, on_click=self.__exit_party))
+
+        client_id = self._client.network.id
+
+        if client_id == 0:
+            self._client.add_component(
+                Button("> Start", self._client.width // 2, self._client.height // 2, font_size=48, align="center",
+                       font_color="#FFD800", hover_color="#FFEE75", width=200, height=50,
+                       animation="up", on_click=self.__start_party), id="start")
+
+        self.__cards = InteractiveCards(client_id, self._client)
+
+    def update(self, dt: float) -> None:
+        if self.__match is None:
+            return
+
+        if not self.__match.host_online:
+            self.__exit_party()
+            self._client.add_component(
+                WarningText("Host left the party", self._client.width // 2, 550,
+                            font_size=30, align="center"), id="left")
+
+        self.__cards.update(self.__match, dt)
+        self.__update_deck(dt)
+
+        if pygame.mouse.get_pressed()[0]:
+            self.__holding_mouse = True
+        elif self.__holding_mouse:
+            self.__holding_mouse = False
+
+    def update_server(self, network: Network) -> None:
+        if network is None:
+            return
+
+        # Se a partida já começou, volta para o menu de join
+        self.__id = network.id
+        if self.__id == -1:
+            self.__exit_party()
+            return
+
+        match = network.send({"type": "GET"})
+        if match is not None:
+            self.__match = match
+
+        if not self.__requests.is_empty():
+            request = self.__requests.pop()
+            network.send(request)
+
+        if self.__cards is not None:
+            self.__cards.update_server(network)
 
     def draw(self, surface: pygame.Surface) -> None:
         surface.blit(Resources.BACKGROUND, (0, 0))

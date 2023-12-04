@@ -155,6 +155,13 @@ class InteractiveCards:
         rect.midbottom = (self.__client.width // 2, self.__client.height - self.__flipped_card.get_height() - 20)
         surface.blit(text, rect)
 
+        # Desenha uma seta indicando o turno
+        if self.__match.ready and self.__match.turn == self.__player.id:
+            arrow_text = self.__font.render('<', True, 'green')
+            arrow_rect = text.get_rect()
+            arrow_rect.midleft = (rect.right + 10, rect.centery)
+            surface.blit(arrow_text, arrow_rect)
+
         # Desenha as cartas
         for icard in self.__cards:
             image = self.__flipped_card if not self.__match.ready else None
