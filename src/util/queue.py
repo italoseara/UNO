@@ -10,6 +10,12 @@ class Queue(Generic[T]):
     def __init__(self) -> None:
         self._queue = []
 
+    def __iter__(self) -> Iterator[T]:
+        return iter(self._queue)
+
+    def __len__(self):
+        return len(self._queue)
+
     def push(self, item: T) -> None:
         self._queue.append(item)
 
@@ -23,9 +29,3 @@ class Queue(Generic[T]):
 
     def is_empty(self) -> bool:
         return len(self._queue) == 0
-
-    def size(self) -> int:
-        return len(self._queue)
-
-    def __iter__(self) -> Iterator[T]:
-        return iter(self._queue)

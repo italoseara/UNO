@@ -33,6 +33,7 @@ class Match:
         self.__players = []
 
         self.__deck = Deck()
+        self.__already_played = Queue[Card]()
         self.__discard = Queue[CardMount]()
 
     @property
@@ -154,6 +155,18 @@ class Match:
         card = player.remove_card(card_index)
 
         self.__discard.push(CardMount(card))
+        if len(self.__discard) > 5:
+            # Coloca as cartas de baixo do monte de descarte no monte de já jogadas,
+            # para evitar que o jogo fique muito pesado
+            self.__already_played.push(self.__discard.pop().card)
+
+        # Caso o monte de cartas esteja vazio ou o monte de já jogadas esteja muito grande,
+        if len(self.__already_played) > 10 or len(self.__deck) == 0:
+            # Coloca as cartas já jogadas de volta no monte de cartas e embaralha
+            for i in range(len(self.__already_played)):
+                self.__deck.push(self.__already_played.pop())
+            self.__deck.shuffle()
+
         # TODO: Verifica se o jogador ganhou
         card.play(self, player_id)
 

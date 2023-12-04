@@ -119,7 +119,6 @@ class Party(State):
         for color, rect in options.items():
             if rect.collidepoint(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] and \
                     time.time() - self.__last_click > 0.5:
-                print(color)
                 self.__requests.push({"type": "SELECT_COLOR", "color": color})
                 self.__last_click = time.time()
 
@@ -222,15 +221,23 @@ class Party(State):
             surface.blit(image, rect)
 
     def __draw_deck(self, surface: pygame.Surface) -> None:
+        card_width = self.__flipped_cards["regular"].get_width()
+        card_height = self.__flipped_cards["regular"].get_height()
+
         for i in range(3):
             surface.blit(self.__flipped_cards["regular"], (165 - 2*i, 175 - 2*i))
 
             if not self.__match.ready or not self.__match.can_play(self.__id) or not self.__match.can_draw(self.__id):
-                rect = pygame.Surface((self.__flipped_cards["regular"].get_width(),
-                                       self.__flipped_cards["regular"].get_height()))
+                rect = pygame.Surface((card_width, card_height))
                 rect.set_alpha(128)
                 rect.fill((0, 0, 0))
                 surface.blit(rect, (165 - 2*i, 175 - 2*i))
+
+        # Desenha o número de cartas no baralho
+        text = self.__font.render(str(len(self.__match.deck)), True, "white")
+        rect = text.get_rect()
+        rect.center = (165 + card_width // 2, 175 + card_height // 2)
+        surface.blit(text, rect)
 
     def __draw_color_picker(self, surface: pygame.Surface) -> None:
         player = self.__match.get_player(self.__id)
