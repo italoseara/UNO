@@ -28,6 +28,7 @@ class CardMount:
 class Match:
     def __init__(self) -> None:
         self.__ready = False
+        self.__over = False
         self.__turn = 0
         self.__turn_direction = 1
 
@@ -40,6 +41,10 @@ class Match:
     @property
     def ready(self) -> bool:
         return self.__ready
+
+    @property
+    def over(self) -> bool:
+        return self.__over
 
     @property
     def turn(self) -> int:
@@ -88,10 +93,16 @@ class Match:
             card.value == top.card.value
 
     def can_draw(self, player_id: int) -> bool:
+        if self.__over:
+            return False
+
         playable_cards = [card for card in self.get_player(player_id).hand if self.is_playable(card)]
         return len(playable_cards) == 0
 
     def can_play(self, player_id: int) -> bool:
+        if self.__over:
+            return False
+
         player = self.get_player(player_id)
         return self.__turn == player_id and not player.selecting_color
 
@@ -121,6 +132,7 @@ class Match:
         """Inicia a partida"""
 
         self.__ready = True
+        self.__over = False
 
         # Sorteia o jogador inicial
         self.__turn = random.randint(0, len(self.__players) - 1)
@@ -186,7 +198,11 @@ class Match:
                 self.__deck.push(card)
             self.__deck.shuffle()
 
-        # TODO: Verifica se o jogador ganhou
+        if len(player.hand) == 0:
+            # Fim de jogo
+            self.__over = True
+            return
+
         card.play(self, player_id)
 
         # Passa a vez

@@ -150,6 +150,9 @@ class Party(State):
             hand_dimension = (len(player.hand) - 1) * space + card_dimension
 
             for i, card in enumerate(player.hand):
+                if self.__match.over:
+                    flipped_card = card.image
+
                 match position:
                     case "top":
                         surface.blit(flipped_card, (get_hpos(hand_dimension, i), y))
