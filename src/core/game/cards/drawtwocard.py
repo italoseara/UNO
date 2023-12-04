@@ -10,4 +10,10 @@ class DrawTwoCard(Card):
         super().__init__(color, "draw2")
 
     def play(self, match: Any, player_id: int):
-        pass
+        # TODO: Stackar os +4 e +2
+
+        next_player = match.next_turn()
+        for _ in range(2):
+            match.draw(next_player)
+
+        match.turn = match.next_turn()

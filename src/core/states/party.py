@@ -50,6 +50,8 @@ class Party(State):
 
         cp_size = int(Resources.COLOR_PICKER.get_width() * 4), int(Resources.COLOR_PICKER.get_height() * 4)
         self.__color_picker = pygame.transform.scale(Resources.COLOR_PICKER, cp_size).convert_alpha()
+        self.__color_picker.set_alpha(200)
+
         self.__font = pygame.font.Font(f"./src/assets/fonts/ThaleahFat.ttf", 28)
         self.__cards = None
 
@@ -97,24 +99,17 @@ class Party(State):
         if player is None or not player.selecting_color:
             return
 
-        green_rect = pygame.Rect(0, 0, 50, 60)
-        green_rect.center = (self._client.width // 2, self._client.height // 2 - 60)
-
-        red_rect = pygame.Rect(0, 0, 50, 60)
-        red_rect.center = (self._client.width // 2, self._client.height // 2 + 50)
-
-        yellow_rect = pygame.Rect(0, 0, 60, 50)
-        yellow_rect.center = (self._client.width // 2 + 55, self._client.height // 2)
-
-        blue_rect = pygame.Rect(0, 0, 60, 50)
-        blue_rect.center = (self._client.width // 2 - 55, self._client.height // 2)
-
         options = {
-            "green": green_rect,
-            "red": red_rect,
-            "yellow": yellow_rect,
-            "blue": blue_rect
+            "green": pygame.Rect(0, 0, 50, 60),
+            "red": pygame.Rect(0, 0, 50, 60),
+            "yellow": pygame.Rect(0, 0, 60, 50),
+            "blue": pygame.Rect(0, 0, 60, 50)
         }
+
+        options["green"].center = (self._client.width // 2, self._client.height // 2 - 60)
+        options["red"].center = (self._client.width // 2, self._client.height // 2 + 50)
+        options["yellow"].center = (self._client.width // 2 + 55, self._client.height // 2)
+        options["blue"].center = (self._client.width // 2 - 55, self._client.height // 2)
 
         for color, rect in options.items():
             if rect.collidepoint(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] and \

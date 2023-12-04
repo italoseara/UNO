@@ -3,7 +3,7 @@ from util import Queue
 
 from .player import Player
 from .deck import Deck
-from .cards import Card, CardColor
+from .cards import Card, CardColor, WildCard
 
 
 class CardMount:
@@ -29,6 +29,7 @@ class Match:
     def __init__(self) -> None:
         self.__ready = False
         self.__turn = 0
+        self.__turn_direction = 1
 
         self.__players = []
 
@@ -43,6 +44,18 @@ class Match:
     @property
     def turn(self) -> int:
         return self.__turn
+
+    @turn.setter
+    def turn(self, value: int) -> None:
+        self.__turn = value
+
+    @property
+    def turn_direction(self) -> int:
+        return self.__turn_direction
+
+    @turn_direction.setter
+    def turn_direction(self, value: int) -> None:
+        self.__turn_direction = value
 
     @property
     def host_online(self) -> bool:
@@ -100,6 +113,9 @@ class Match:
         """Retorna o número de jogadores na partida"""
 
         return len(self.__players)
+
+    def next_turn(self) -> int:
+        return (self.__turn + self.__turn_direction) % len(self.__players)
 
     def start(self) -> None:
         """Inicia a partida"""
@@ -164,7 +180,10 @@ class Match:
         if len(self.__already_played) > 10 or len(self.__deck) == 0:
             # Coloca as cartas já jogadas de volta no monte de cartas e embaralha
             for i in range(len(self.__already_played)):
-                self.__deck.push(self.__already_played.pop())
+                card = self.__already_played.pop()
+                if isinstance(card, WildCard):
+                    card.color = CardColor.WILD
+                self.__deck.push(card)
             self.__deck.shuffle()
 
         # TODO: Verifica se o jogador ganhou
@@ -172,7 +191,7 @@ class Match:
 
         # Passa a vez
         if not player.selecting_color:
-            self.__turn = (self.__turn + 1) % len(self.__players)
+            self.__turn = self.next_turn()
 
     def draw(self, player_id: int) -> None:
         """Compra uma carta
@@ -192,10 +211,9 @@ class Match:
             color (str): Cor selecionada
         """
 
-        player = self.get_player(player_id)
-        player.selecting_color = False
-
         card = self.__discard.peek().card
-        card.color = color
+        if not isinstance(card, WildCard):
+            raise TypeError(f"Card {card} is not a WildCard")
 
-        self.__turn = (self.__turn + 1) % len(self.__players)
+        card.color = color
+        card.after_play(self, player_id)

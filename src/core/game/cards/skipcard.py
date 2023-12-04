@@ -10,4 +10,5 @@ class SkipCard(Card):
         super().__init__(color, "skip")
 
     def play(self, match: Any, player_id: int):
-        pass
+        # Pula o próximo jogador
+        match.turn = match.next_turn()

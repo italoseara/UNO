@@ -10,4 +10,5 @@ class ReverseCard(Card):
         super().__init__(color, "reverse")
 
     def play(self, match: Any, player_id: int):
-        pass
+        # Inverte o sentido do jogo
+        match.turn_direction *= -1
