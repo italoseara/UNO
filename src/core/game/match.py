@@ -10,7 +10,7 @@ class CardMount:
     def __init__(self, card: Card, rotation: int = None, offset: tuple[int, int] = None) -> None:
         self.__card = card
         self.__rotation = random.randint(-80, 80) if rotation is None else rotation
-        self.__offset = (random.randint(-10, 10), random.randint(-10, 10)) if offset is None else offset  
+        self.__offset = (random.randint(-10, 10), random.randint(-10, 10)) if offset is None else offset
 
     @property
     def card(self) -> Card:
@@ -69,9 +69,13 @@ class Match:
 
         # TODO: Wild cards can change color
         return top.card.color == CardColor.WILD or \
-               card.color == CardColor.WILD or \
-               card.color == top.card.color or \
-               card.value == top.card.value
+            card.color == CardColor.WILD or \
+            card.color == top.card.color or \
+            card.value == top.card.value
+
+    def can_draw(self, player_id: int) -> bool:
+        playable_cards = [card for card in self.get_player(player_id).hand if self.is_playable(card)]
+        return len(playable_cards) == 0
 
     def get_player(self, player_id: id) -> Player | None:
         """Retorna a mão de um jogador
@@ -144,8 +148,18 @@ class Match:
 
         player = self.get_player(player_id)
         card = player.remove_card(card_index)
-        
+
         self.__discard.push(CardMount(card))
         # TODO: Verifica se o jogador ganhou
         card.play(self)
         self.__turn = (self.__turn + 1) % len(self.__players)
+
+    def draw(self, player_id: int) -> None:
+        """Compra uma carta
+
+        Args:
+            player_id (int): ID do jogador
+        """
+
+        player = self.get_player(player_id)
+        player.add_card(self.__deck.pop())

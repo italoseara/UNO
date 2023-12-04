@@ -122,6 +122,9 @@ class Server:
                     case "PLAY":
                         if self.__match.turn == client_id:
                             self.__match.play(client_id, data["index"])
+                    case "DRAW":
+                        if self.__match.turn == client_id and self.__match.can_draw(client_id):
+                            self.__match.draw(client_id)
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break

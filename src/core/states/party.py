@@ -1,3 +1,4 @@
+import time
 import pygame
 
 from assets.components import WarningText, Button
@@ -25,6 +26,10 @@ class Party(State):
     # Fila de requisições
     __requests: Queue[dict]
 
+    # Variaveis logicas
+    __holding_mouse: bool
+    __last_deck_click: float
+
     def __init__(self, client) -> None:
         super().__init__(client)
         self.__match = None
@@ -46,6 +51,9 @@ class Party(State):
         self.__cards = None
 
         self.__requests = Queue[dict]()
+
+        self.__holding_mouse = False
+        self.__last_deck_click = 0
 
     def init(self) -> None:
         self._client.add_component(
@@ -82,6 +90,20 @@ class Party(State):
                 WarningText("You left the party", self._client.width // 2, 550,
                             font_size=30, align="center"), id="left")
 
+    def __update_deck(self, dt: float) -> None:
+        if not self.__match.ready or not self.__match.turn == self.__id or not self.__match.can_draw(self.__id):
+            return
+
+        if self.__holding_mouse or time.time() - self.__last_deck_click < 0.5:
+            return
+
+        card = self.__flipped_cards["regular"]
+        hitbox = pygame.Rect(165, 175, card.get_width(), card.get_height())
+
+        if hitbox.collidepoint(*pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            self.__requests.push({"type": "DRAW"})
+            self.__last_deck_click = time.time()
+
     def update(self, dt: float) -> None:
         if self.__match is None:
             return
@@ -93,6 +115,12 @@ class Party(State):
                             font_size=30, align="center"), id="left")
 
         self.__cards.update(self.__match, dt)
+        self.__update_deck(dt)
+
+        if pygame.mouse.get_pressed()[0]:
+            self.__holding_mouse = True
+        elif self.__holding_mouse:
+            self.__holding_mouse = False
 
     def update_server(self, network: Network) -> None:
         if network is None:
@@ -208,8 +236,7 @@ class Party(State):
         for i in range(3):
             surface.blit(self.__flipped_cards["regular"], (165 - 2*i, 175 - 2*i))
 
-            playable_cards = [card.card for card in self.__cards if self.__match.is_playable(card.card)]
-            if not self.__match.ready or self.__match.turn != self.__id or len(playable_cards) != 0:
+            if not self.__match.ready or self.__match.turn != self.__id or not self.__match.can_draw(self.__id):
                 rect = pygame.Surface((self.__flipped_cards["regular"].get_width(),
                                        self.__flipped_cards["regular"].get_height()))
                 rect.set_alpha(128)
