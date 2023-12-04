@@ -86,7 +86,6 @@ class Match:
         if top is None:
             return False
 
-        # TODO: Wild cards can change color
         return top.card.color == CardColor.WILD or \
             card.color == CardColor.WILD or \
             card.color == top.card.color or \

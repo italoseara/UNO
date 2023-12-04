@@ -67,7 +67,6 @@ class InteractiveCards:
         self.__requests = Queue[dict]()
 
     def __update_cards(self) -> None:
-        # TODO: Atualizar corretamente a lista de cartas
         if self.__player is None or self.__match is None:
             return
 
@@ -95,7 +94,6 @@ class InteractiveCards:
                 self.__cards.append(InteractiveCard(card, x, y))
 
     def __animate_cards(self) -> None:
-        # TODO: Mudar para quando for a vez do jogador
         if not self.__match.ready:
             return
         
@@ -109,7 +107,6 @@ class InteractiveCards:
                     self.__match.can_play(self.__player.id)
                 ) if self.__match.ready else False
                 if pygame.mouse.get_pressed()[0] and last > 0.3 and not self.__holding_click and playable:
-                    # TODO: Verifica se pode jogar a carta
                     self.__last_click = time.time()
                     self.__requests.push({"type": "PLAY", "index": i})
                 
