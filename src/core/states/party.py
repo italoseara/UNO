@@ -180,10 +180,17 @@ class Party(State):
 
         # Desenha uma seta indicando o turno
         if self.__match.ready and self.__match.turn == player.id:
-            arrow_text = self.__font.render('<', True, 'green')
-            arrow_rect = text.get_rect()
-            arrow_rect.midleft = (rect.right + 10, rect.centery)
-            surface.blit(arrow_text, arrow_rect)
+            indicator_text = self.__font.render('Playing...', True, 'green')
+            indicator_rect = text.get_rect()
+
+            if position == "top":
+                indicator_rect.topleft = rect.midbottom
+            else:
+                indicator_rect.bottomleft = rect.midtop
+
+            indicator_rect.x -= indicator_text.get_width() // 2
+
+            surface.blit(indicator_text, indicator_rect)
 
     def __draw_cards(self, surface: pygame.Surface) -> None:
         players_len = self.__match.get_number_of_players()
