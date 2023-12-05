@@ -29,14 +29,17 @@ class Match:
     def __init__(self) -> None:
         self.__ready = False
         self.__over = False
+
         self.__turn = 0
         self.__turn_direction = 1
+
+        self.__stack = 0
 
         self.__players = []
 
         self.__deck = Deck()
-        self.__already_played = Queue[Card]()
         self.__discard = Queue[CardMount]()
+        self.__already_played = Queue[Card]()
 
     @property
     def ready(self) -> bool:
@@ -63,6 +66,14 @@ class Match:
         self.__turn_direction = value
 
     @property
+    def stack(self) -> int:
+        return self.__stack
+
+    @stack.setter
+    def stack(self, value: int) -> None:
+        self.__stack = value
+
+    @property
     def host_online(self) -> bool:
         return 0 in [player.id for player in self.players]
 
@@ -85,6 +96,9 @@ class Match:
         top = self.__discard.peek()
         if top is None:
             return False
+
+        if self.__stack > 0:
+            return card.value in ["draw2", "draw4"]
 
         return top.card.color == CardColor.WILD or \
             card.color == CardColor.WILD or \

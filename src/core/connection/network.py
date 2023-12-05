@@ -100,7 +100,7 @@ class Network:
 
             try:
                 self.__client.send(pickle.dumps(data))  # Envia dados para o servidor
-                return pickle.loads(self.__client.recv(131072))  # Retorna a partida (32kb)
+                return pickle.loads(self.__client.recv(65536))  # Retorna a partida (64kb)
             except socket.error as e:
                 print(f"[Network] Error: {e}")
             except pickle.UnpicklingError:

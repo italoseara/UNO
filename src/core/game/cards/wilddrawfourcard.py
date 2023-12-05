@@ -12,15 +12,19 @@ class WildDrawFourCard(WildCard):
         super().play(match, player_id)
 
     def after_play(self, match: Any, player_id: int):
-        next_player = match.next_turn()
+        match.stack += 4
 
-        # TODO: Stackar os +4 e +2
+        next_player = match.get_player(match.next_turn())
 
-        # Pega 4 cartas
-        for _ in range(4):
-            match.draw(next_player)
+        if not next_player.has_draw_card():
+            # Compra 4 cartas
+            for _ in range(match.stack):
+                next_player.add_card(match.deck.pop())
 
-        # Pula o próximo jogador
-        match.turn = match.next_turn()
+            # Passa a vez
+            match.turn = match.next_turn()
+
+            # Tira o stack
+            match.stack = 0
 
         super().after_play(match, player_id)

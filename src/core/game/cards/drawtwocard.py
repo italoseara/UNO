@@ -10,10 +10,17 @@ class DrawTwoCard(Card):
         super().__init__(color, "draw2")
 
     def play(self, match: Any, player_id: int):
-        # TODO: Stackar os +4 e +2
+        match.stack += 2
 
-        next_player = match.next_turn()
-        for _ in range(2):
-            match.draw(next_player)
+        next_player = match.get_player(match.next_turn())
 
-        match.turn = match.next_turn()
+        if not next_player.has_draw_card():
+            # Compra 4 cartas
+            for _ in range(match.stack):
+                next_player.add_card(match.deck.pop())
+
+            # Passa a vez
+            match.turn = match.next_turn()
+
+            # Tira o stack
+            match.stack = 0

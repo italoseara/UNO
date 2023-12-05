@@ -36,6 +36,19 @@ class Player:
     def selecting_color(self, value: bool) -> None:
         self.__selecting_color = value
 
+    def has_draw_card(self) -> bool:
+        """Verifica se o jogador possui uma carta de compra na mão
+
+        Returns:
+            bool: True se o jogador possui uma carta de compra na mão
+        """
+
+        for card in self.__hand:
+            if card.value == "draw2" or card.value == "draw4":
+                return True
+
+        return False
+
     def add_card(self, card: Card) -> None:
         """Adiciona uma carta à mão do jogador
 
