@@ -153,7 +153,7 @@ class InteractiveCards:
         surface.blit(text, rect)
 
         # Desenha uma seta indicando o turno
-        if self.__match.ready and self.__match.turn == self.__player.id:
+        if self.__match.ready and self.__match.turn == self.__player.id and not self.__match.over:
             indicator_text = self.__font.render('Your Turn', True, 'green')
             indicator_rect = text.get_rect()
             indicator_rect.bottomleft = rect.midtop

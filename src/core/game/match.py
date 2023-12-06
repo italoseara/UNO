@@ -29,7 +29,7 @@ class CardMount:
 class Match:
     def __init__(self) -> None:
         self.__ready = False
-        self.__over = False
+        self.__winner = None
 
         self.__turn = 0
         self.__turn_direction = 1
@@ -49,7 +49,11 @@ class Match:
 
     @property
     def over(self) -> bool:
-        return self.__over
+        return self.__winner is not None
+
+    @property
+    def winner(self) -> int:
+        return self.__winner
 
     @property
     def turn(self) -> int:
@@ -108,18 +112,18 @@ class Match:
             card.value == top.card.value
 
     def can_draw(self, player_id: int) -> bool:
-        if self.__over:
+        if self.over:
             return False
 
         playable_cards = [card for card in self.get_player(player_id).hand if self.is_playable(card)]
         return len(playable_cards) == 0
 
     def can_play(self, player_id: int) -> bool:
-        if self.__over:
+        if self.over or time.time() - self.__last_play < 0.5:
             return False
 
         player = self.get_player(player_id)
-        return self.__turn == player_id and not player.selecting_color and time.time() - self.__last_play > 0.5
+        return self.__turn == player_id and not player.selecting_color
 
     def get_player(self, player_id: id) -> Player | None:
         """Retorna a mão de um jogador
@@ -151,13 +155,34 @@ class Match:
         """Inicia a partida"""
 
         self.__ready = True
-        self.__over = False
+        self.__winner = None
 
         # Sorteia o jogador inicial
         self.__turn = random.randint(0, len(self.__players) - 1)
 
         # Coloca uma carta no monte de descarte
         self.__discard.push(CardMount(self.__deck.pop(), 0, (0, 0)))
+
+    def restart(self) -> None:
+        """Reinicia a partida"""
+
+        self.__ready = False
+        self.__winner = None
+
+        self.__turn = 0
+        self.__turn_direction = 1
+        self.__last_play = 0
+
+        self.__stack = 0
+
+        self.__deck = Deck()
+        self.__discard = Queue[CardMount]()
+        self.__already_played = Queue[Card]()
+
+        for player in self.__players:
+            player.hand.clear()
+            for _ in range(7):
+                player.add_card(self.__deck.pop())
 
     def add_player(self, player_id: id, player_name: str) -> None:
         """Adiciona um jogador à partida
@@ -219,7 +244,7 @@ class Match:
 
         if len(player.hand) == 0:
             # Fim de jogo
-            self.__over = True
+            self.__winner = player_id
             return
 
         card.play(self, player_id)
