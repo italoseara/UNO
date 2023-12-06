@@ -12,7 +12,7 @@ class DrawTwoCard(Card):
     def play(self, match: Any, player_id: int):
         match.stack += 2
 
-        next_player = match.get_player(match.next_turn())
+        next_player = match.next_player()
 
         if not next_player.has_draw_card():
             # Compra 4 cartas
@@ -20,7 +20,7 @@ class DrawTwoCard(Card):
                 next_player.add_card(match.deck.pop())
 
             # Passa a vez
-            match.turn = match.next_turn()
+            match.next_turn()
 
             # Tira o stack
             match.stack = 0

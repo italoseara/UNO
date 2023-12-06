@@ -1,3 +1,4 @@
+import time
 import random
 from util import Queue
 
@@ -32,6 +33,7 @@ class Match:
 
         self.__turn = 0
         self.__turn_direction = 1
+        self.__last_play = 0
 
         self.__stack = 0
 
@@ -117,7 +119,7 @@ class Match:
             return False
 
         player = self.get_player(player_id)
-        return self.__turn == player_id and not player.selecting_color
+        return self.__turn == player_id and not player.selecting_color and time.time() - self.__last_play > 0.5
 
     def get_player(self, player_id: id) -> Player | None:
         """Retorna a mão de um jogador
@@ -138,8 +140,12 @@ class Match:
 
         return len(self.__players)
 
-    def next_turn(self) -> int:
-        return (self.__turn + self.__turn_direction) % len(self.__players)
+    def next_turn(self) -> None:
+        self.__last_play = time.time()
+        self.__turn = (self.__turn + self.__turn_direction) % len(self.__players)
+
+    def next_player(self) -> Player:
+        return self.__players[(self.__turn + self.__turn_direction) % len(self.__players)]
 
     def start(self) -> None:
         """Inicia a partida"""
@@ -220,7 +226,7 @@ class Match:
 
         # Passa a vez
         if not player.selecting_color:
-            self.__turn = self.next_turn()
+            self.next_turn()
 
     def draw(self, player_id: int) -> None:
         """Compra uma carta
