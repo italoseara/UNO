@@ -15,4 +15,4 @@ class WildCard(Card):
         player = match.get_player(player_id)
         player.selecting_color = False
 
-        match.turn = match.next_turn()
+        match.next_turn()

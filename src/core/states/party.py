@@ -1,7 +1,7 @@
 import time
 import pygame
 
-from assets.components import WarningText, Button
+from assets.components import WarningText, Button, Text
 from core.game.interactivecards import InteractiveCards
 from core.game.player import Player
 from core.game.match import Match
@@ -179,11 +179,18 @@ class Party(State):
         surface.blit(text, rect)
 
         # Desenha uma seta indicando o turno
-        if self.__match.ready and self.__match.turn == player.id:
-            arrow_text = self.__font.render('<', True, 'green')
-            arrow_rect = text.get_rect()
-            arrow_rect.midleft = (rect.right + 10, rect.centery)
-            surface.blit(arrow_text, arrow_rect)
+        if self.__match.ready and self.__match.turn == player.id and not self.__match.over:
+            indicator_text = self.__font.render('Playing...', True, 'green')
+            indicator_rect = text.get_rect()
+
+            if position == "top":
+                indicator_rect.topleft = rect.midbottom
+            else:
+                indicator_rect.bottomleft = rect.midtop
+
+            indicator_rect.x -= indicator_text.get_width() // 2
+
+            surface.blit(indicator_text, indicator_rect)
 
     def __draw_cards(self, surface: pygame.Surface) -> None:
         players_len = self.__match.get_number_of_players()
@@ -243,6 +250,38 @@ class Party(State):
         rect.center = (self._client.width // 2, self._client.height // 2)
 
         surface.blit(self.__color_picker, rect)
+
+    def __draw_winner(self, surface: pygame.Surface):
+        if not self.__match.over:
+            self._client.pop_component("win-message")
+            self._client.pop_component("restart")
+            return
+
+        # Draw black transparent rect
+        rect = pygame.Surface((self._client.width, self._client.height))
+        rect.set_alpha(128)
+        rect.fill((0, 0, 0))
+        surface.blit(rect, (0, 0))
+
+        if not self._client.get_component("restart"):
+            winner_id = self.__match.winner
+            winner = self.__match.get_player(winner_id)
+
+            self._client.add_component(
+                Text("You win!" if self._client.network.id == winner_id else f"{winner.name} wins!",
+                     self._client.width // 2, self._client.height // 2,
+                     font_size=48, align="center", font_color="green"), id="win-message")
+
+            if self._client.network.id == 0:
+                self._client.add_component(
+                    Button("Restart", self._client.width // 2, self._client.height // 2 + 50, font_size=48, align="center",
+                           font_color="#FFD800", hover_color="#FFEE75", width=200, height=50,
+                           animation="up", on_click=self.__restart_match), id="restart")
+
+    def __restart_match(self, *_) -> None:
+        self.__requests.push({"type": "RESTART"})
+        self._client.clear_components()
+        self.init()
 
     def init(self) -> None:
         self._client.add_component(
@@ -305,17 +344,14 @@ class Party(State):
         if self.__match is None:
             return
 
-        # Desenha a carta de outros jogadores
+        # Draw Cards
         self.__draw_cards(surface)
-
-        # Desenha as proprias cartas
         self.__cards.draw(surface)
 
-        # Desenha o baralho
         self.__draw_deck(surface)
-
-        # Desenha o monte de descarte
         self.__draw_discard(surface)
-
-        # Desenha o seletor de cor
         self.__draw_color_picker(surface)
+
+        self.__draw_winner(surface)
+
+

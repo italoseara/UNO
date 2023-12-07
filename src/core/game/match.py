@@ -1,3 +1,4 @@
+import time
 import random
 from util import Queue
 
@@ -28,15 +29,19 @@ class CardMount:
 class Match:
     def __init__(self) -> None:
         self.__ready = False
-        self.__over = False
+        self.__winner = None
+
         self.__turn = 0
         self.__turn_direction = 1
+        self.__last_play = 0
+
+        self.__stack = 0
 
         self.__players = []
 
         self.__deck = Deck()
-        self.__already_played = Queue[Card]()
         self.__discard = Queue[CardMount]()
+        self.__already_played = Queue[Card]()
 
     @property
     def ready(self) -> bool:
@@ -44,7 +49,11 @@ class Match:
 
     @property
     def over(self) -> bool:
-        return self.__over
+        return self.__winner is not None
+
+    @property
+    def winner(self) -> int:
+        return self.__winner
 
     @property
     def turn(self) -> int:
@@ -61,6 +70,14 @@ class Match:
     @turn_direction.setter
     def turn_direction(self, value: int) -> None:
         self.__turn_direction = value
+
+    @property
+    def stack(self) -> int:
+        return self.__stack
+
+    @stack.setter
+    def stack(self, value: int) -> None:
+        self.__stack = value
 
     @property
     def host_online(self) -> bool:
@@ -86,20 +103,23 @@ class Match:
         if top is None:
             return False
 
+        if self.__stack > 0:
+            return card.value in ["draw2", "draw4"]
+
         return top.card.color == CardColor.WILD or \
             card.color == CardColor.WILD or \
             card.color == top.card.color or \
             card.value == top.card.value
 
     def can_draw(self, player_id: int) -> bool:
-        if self.__over:
+        if self.over:
             return False
 
         playable_cards = [card for card in self.get_player(player_id).hand if self.is_playable(card)]
         return len(playable_cards) == 0
 
     def can_play(self, player_id: int) -> bool:
-        if self.__over:
+        if self.over or time.time() - self.__last_play < 0.5:
             return False
 
         player = self.get_player(player_id)
@@ -124,20 +144,45 @@ class Match:
 
         return len(self.__players)
 
-    def next_turn(self) -> int:
-        return (self.__turn + self.__turn_direction) % len(self.__players)
+    def next_turn(self) -> None:
+        self.__last_play = time.time()
+        self.__turn = (self.__turn + self.__turn_direction) % len(self.__players)
+
+    def next_player(self) -> Player:
+        return self.__players[(self.__turn + self.__turn_direction) % len(self.__players)]
 
     def start(self) -> None:
         """Inicia a partida"""
 
         self.__ready = True
-        self.__over = False
+        self.__winner = None
 
         # Sorteia o jogador inicial
         self.__turn = random.randint(0, len(self.__players) - 1)
 
         # Coloca uma carta no monte de descarte
         self.__discard.push(CardMount(self.__deck.pop(), 0, (0, 0)))
+
+    def restart(self) -> None:
+        """Reinicia a partida"""
+
+        self.__ready = False
+        self.__winner = None
+
+        self.__turn = 0
+        self.__turn_direction = 1
+        self.__last_play = 0
+
+        self.__stack = 0
+
+        self.__deck = Deck()
+        self.__discard = Queue[CardMount]()
+        self.__already_played = Queue[Card]()
+
+        for player in self.__players:
+            player.hand.clear()
+            for _ in range(7):
+                player.add_card(self.__deck.pop())
 
     def add_player(self, player_id: id, player_name: str) -> None:
         """Adiciona um jogador à partida
@@ -199,14 +244,14 @@ class Match:
 
         if len(player.hand) == 0:
             # Fim de jogo
-            self.__over = True
+            self.__winner = player_id
             return
 
         card.play(self, player_id)
 
         # Passa a vez
         if not player.selecting_color:
-            self.__turn = self.next_turn()
+            self.next_turn()
 
     def draw(self, player_id: int) -> None:
         """Compra uma carta

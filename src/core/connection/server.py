@@ -128,6 +128,9 @@ class Server:
                     case "SELECT_COLOR":
                         if self.__match.turn == client_id and self.__match.get_player(client_id).selecting_color:
                             self.__match.select_color(client_id, data["color"])
+                    case "RESTART":
+                        if self.__match.over:
+                            self.__match.restart()
                     case _:
                         print(f"[Server] Unknown request: {data['type']}")
                         break
