@@ -31,6 +31,9 @@ class Text(Component):
 
         return surface, rect
 
+    def on_keydown(self, event: pygame.event):
+        pass
+
     def update(self, dt: float):
         pass
 

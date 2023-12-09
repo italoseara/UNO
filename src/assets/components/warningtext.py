@@ -30,6 +30,9 @@ class WarningText(Text):
     def is_expired(self) -> bool:
         return pygame.time.get_ticks() - self.__created_at > self.__lifespan
 
+    def on_keydown(self, event: pygame.event):
+        pass
+
     def update(self, dt: float):
         self._y = lerp(self._y, self.__init_y - 35, 0.02)
         self.__alpha = lerp(self.__alpha, 0, 0.02)

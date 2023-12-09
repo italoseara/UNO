@@ -1,9 +1,11 @@
+import abc
 import pygame
 
 
-class Component:
+class Component(metaclass=abc.ABCMeta):
     """Classe base para os componentes do jogo."""
 
+    @abc.abstractmethod
     def update(self, dt: float):
         """Atualiza o componente.
 
@@ -12,13 +14,16 @@ class Component:
         """
         pass
 
+    @abc.abstractmethod
     def on_keydown(self, event: pygame.event):
         """Evento de tecla pressionada.
 
         Args:
             event (pygame.event): Evento de tecla pressionada.
         """
+        pass
 
+    @abc.abstractmethod
     def draw(self, surface: pygame.Surface):
         """Desenha o componente.
 

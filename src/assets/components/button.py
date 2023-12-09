@@ -77,6 +77,9 @@ class Button(Component):
     def __set_color(self, color: tuple[int, int, int] | str):
         self.__current_color = self.__current_color.lerp(color, 0.1)
 
+    def on_keydown(self, event: pygame.event):
+        pass
+
     def update(self, dt: float):
         if self.__on_click is None:
             return
@@ -104,9 +107,6 @@ class Button(Component):
         else:
             self.__set_pos(self.__init_x, self.__init_y)
             self.__set_color(self.__font_color)
-
-    def on_keydown(self, event: pygame.event):
-        pass
 
     def draw(self, surface: pygame.Surface):
         # Desenha o botão

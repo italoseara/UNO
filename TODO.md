@@ -8,3 +8,5 @@
 - [ ] UNO button when you have one card left
 - [x] Add a delay between each player's turn
 - [ ] Animations
+- [ ] Do not start the game with a special card
+- [ ] Ctrl + V to paste

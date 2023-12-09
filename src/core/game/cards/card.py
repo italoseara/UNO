@@ -1,3 +1,4 @@
+import abc
 import pygame
 from typing import Any
 
@@ -47,5 +48,6 @@ class Card:
         img = Resources.CARDS[self._color][self._value + ".png"]
         return pygame.transform.scale(img, (int(img.get_width() * 3.5), int(img.get_height() * 3.5)))
 
+    @abc.abstractmethod
     def play(self, match: Any, player_id: int):
         pass

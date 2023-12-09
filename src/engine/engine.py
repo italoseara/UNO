@@ -1,3 +1,4 @@
+import abc
 import pygame
 import threading
 
@@ -17,7 +18,7 @@ def on_event(type_: int):
     return inner
 
 
-class Engine:
+class Engine(metaclass=abc.ABCMeta):
     _width: int
     _height: int
     _fps: int
@@ -188,18 +189,22 @@ class Engine:
             pygame.display.flip()  # Atualiza a tela
             dt = self._clock.tick(self._fps) / 1000  # Atualiza o delta time
 
+    @abc.abstractmethod
     def init(self) -> None:
         """Inicializa o jogo."""
         pass
 
+    @abc.abstractmethod
     def update(self, dt: float) -> None:
         """Atualiza o jogo."""
         pass
 
+    @abc.abstractmethod
     def update_server(self) -> None:
         """Atualiza o servidor."""
         pass
 
+    @abc.abstractmethod
     def draw(self) -> None:
         """Desenha o jogo."""
         pass
