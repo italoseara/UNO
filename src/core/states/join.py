@@ -38,7 +38,7 @@ class Join(State):
             Text("IP:", cx, 245, font_size=35, align="center"))
         self._client.add_component(
             TextInput(cx, 290, 300, 50, font_size=30,
-                      text_align="center", font_color="white", background_color="#a30f17",
+                      text_align="center", max_length_input = 19 ,font_color="white", background_color="#a30f17",
                       border_color="#8c0d13", border_width=3, border_radius=5, align="center", default="localhost"),
             id="ip")
 
