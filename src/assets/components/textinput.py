@@ -1,4 +1,6 @@
 import pygame
+import pygame.locals
+import pyperclip
 from .component import Component
 
 
@@ -68,10 +70,16 @@ class TextInput(Component):
         if self.__on_focus:
             if event.key == pygame.K_BACKSPACE:  # Unicode gera caractere invalido se apertar backspace
                 self.__user_input = self.__user_input[0:-1]
+            if event.key == pygame.K_v and pygame.key.get_mods() & pygame.KMOD_CTRL:
+                if self.__numeric and not pyperclip.paste().isnumeric(): # Verifica se o texto é um número (porta)
+                    return
+                if len(pyperclip.paste()) > self.__max_length_input: # Verifica se o texto é maior que o limite
+                    self.__user_input = pyperclip.paste()[0:self.__max_length_input]
+                    return
+                self.__user_input += pyperclip.paste()
             elif event.unicode.isprintable():  # Verifica se o caractere é imprimível
                 if self.__max_length_input == "auto" and self.__text_font.size(self.__user_input)[0] >= self.__width - 30:
                     return  # Não adiciona o input se o texto já estiver no limite da caixa de texto
-
                 if self.__max_length_input == "auto" or len(self.__user_input) < self.__max_length_input:
                     if self.__numeric and not event.unicode.isnumeric():
                         return

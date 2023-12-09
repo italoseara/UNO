@@ -37,6 +37,9 @@ class Text(Component):
     def update(self, dt: float):
         pass
 
+    def on_keydown(self, event: pygame.event):
+        pass
+
     def draw(self, surface: pygame.Surface):
         text, rect = self._render_text()
         surface.blit(text, rect)

@@ -14,7 +14,8 @@ class State(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def init(self):
-        """Inicializa o estado. Pode ser chamado várias vezes a fim de reiniciar o estado."""
+        """Inicializa o estado. Pode ser chamado várias vezes a 
+            fim de reiniciar o estado."""
         pass
 
     @abc.abstractmethod
@@ -36,6 +37,7 @@ class State(metaclass=abc.ABCMeta):
         """Desenha o estado.
 
         Args:
-            surface (pygame.Surface): Superfície onde o estado será desenhado.
+            surface (pygame.Surface): Superfície onde o estado 
+            será desenhado.
         """
         pass
