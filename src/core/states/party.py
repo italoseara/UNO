@@ -353,5 +353,3 @@ class Party(State):
         self.__draw_color_picker(surface)
 
         self.__draw_winner(surface)
-
-

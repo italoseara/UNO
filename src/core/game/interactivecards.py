@@ -34,7 +34,7 @@ class InteractiveCard:
     def __is_hovering(self) -> bool:
         x, y = pygame.mouse.get_pos()
         return self.__x <= x <= self.__x + self.__card.image.get_width() and \
-               self.__y <= y <= self.__y + self.__card.image.get_height()
+            self.__y <= y <= self.__y + self.__card.image.get_height()
 
     def is_hovering(self, next_card: Self) -> bool:
         if next_card is None:
@@ -96,20 +96,20 @@ class InteractiveCards:
     def __animate_cards(self) -> None:
         if not self.__match.ready:
             return
-        
+
         for i, icard in enumerate(self.__cards):
             next_card = self.__cards[i + 1] if i + 1 < len(self.__cards) else None
 
             if icard.is_hovering(next_card):
                 last = time.time() - self.__last_click
                 playable = (
-                    self.__match.is_playable(icard.card) and
-                    self.__match.can_play(self.__player.id)
+                        self.__match.is_playable(icard.card) and
+                        self.__match.can_play(self.__player.id)
                 ) if self.__match.ready else False
                 if pygame.mouse.get_pressed()[0] and last > 0.3 and not self.__holding_click and playable:
                     self.__last_click = time.time()
                     self.__requests.push({"type": "PLAY", "index": i})
-                
+
                 icard.move(y=-30)
             else:
                 icard.move(y=0)
@@ -165,8 +165,8 @@ class InteractiveCards:
         for icard in self.__cards:
             image = self.__flipped_card if not self.__match.ready else None
             playable = (
-                self.__match.is_playable(icard.card) and
-                self.__match.can_play(self.__player.id)
+                    self.__match.is_playable(icard.card) and
+                    self.__match.can_play(self.__player.id)
             ) if self.__match.ready else False
 
             icard.draw(surface, image, not playable)

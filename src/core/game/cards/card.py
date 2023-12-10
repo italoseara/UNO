@@ -13,7 +13,7 @@ class CardColor:
     WILD = "wild"
 
 
-class Card:
+class Card(metaclass=abc.ABCMeta):
     """Classe base para cartas do jogo."""
 
     _images_cache: dict[str, pygame.Surface] = {}
