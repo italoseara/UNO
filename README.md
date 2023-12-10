@@ -1,24 +1,42 @@
-# UNO with Python
+# UNO em Python
 
-## Description
+## Descrição
 
-This is a Python implementation of the card game UNO. It is a work in progress.
+Essa é uma implementação do jogo de cartas UNO em Python. É um trabalho em progresso.
 
-## Requirements
+## Requisitos
 
-- Python 3.11 or higher
-- Install the required packages with `pip3 install -r requirements.txt`
+- Python 3.11 ou superior
+- Instalar as dependências com `pip install -r requirements.txt`
 
-## Run
+## Rodando o jogo
 
-To play the game, run the following commands:
+Para rodar o jogo, execute o seguinte comando:
+
+### Windows
 
 ```bash
-cd src
-python3 main.py
+py src/main.py
 ```
 
-## Authors
+### Linux/MacOS
+
+```bash
+python3 src/main.py
+```
+
+## Como jogar
+
+- Clique em HOST para criar um servidor
+- Clique em JOIN para se conectar a um servidor, inserindo o IP e a porta do servidor
+- Ao entrar em um servidor, espere o dono do servidor iniciar o jogo clicando em START
+- Quando for sua vez, clique em uma carta para jogá-la
+- Se não tiver nenhuma carta para jogar, clique no monte para comprar uma carta
+- Quando tiver apenas uma carta, clique em UNO para avisar os outros jogadores (TODO)
+- Quado algum jogador ficar sem cartas, o jogo acaba e o vencedor é anunciado
+- Clique em RESTART para jogar novamente
+
+## Autores
 
 - [Italo Seara](https://github.com/italoseara)
 - [Lucas Luige](https://github.com/lluigecm)

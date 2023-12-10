@@ -4,7 +4,7 @@ from util import Queue
 
 from .player import Player
 from .deck import Deck
-from .cards import Card, CardColor, WildCard
+from .cards import Card, CardColor, WildCard, NumberCard
 
 
 class CardMount:
@@ -160,8 +160,13 @@ class Match:
         # Sorteia o jogador inicial
         self.__turn = random.randint(0, len(self.__players) - 1)
 
-        # Coloca uma carta no monte de descarte
-        self.__discard.push(CardMount(self.__deck.pop(), 0, (0, 0)))
+        # Coloca uma carta numérica no monte de descarte
+        while True:
+            card = self.__deck.pop()
+            if isinstance(card, NumberCard):
+                self.__discard.push(CardMount(card, 0, (0, 0)))
+                break
+            self.__deck.push(card)
 
     def restart(self) -> None:
         """Reinicia a partida"""

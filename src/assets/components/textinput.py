@@ -1,6 +1,7 @@
 import pygame
 import pygame.locals
 import pyperclip
+
 from .component import Component
 
 

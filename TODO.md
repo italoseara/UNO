@@ -9,4 +9,4 @@
 - [x] Add a delay between each player's turn
 - [ ] Animations
 - [ ] Do not start the game with a special card
-- [ ] Ctrl + V to paste
+- [x] Ctrl + V to paste
